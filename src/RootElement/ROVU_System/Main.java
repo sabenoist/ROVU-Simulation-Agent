@@ -20,6 +20,8 @@ public class Main {
         cs.setEnvironment((Environment)environment);
         
         cs.preRoverLaunch();
+        
+        
                 
         // add at least one rover otherwise the environment crashes...
         
@@ -34,7 +36,7 @@ public class Main {
                 
         cs.preMissionLaunch();
         
-        //cs.getEnvironment().printGrid(sr2.getZone().getZoneGrid());
+        cs.getEnvironment().printGrid(sr2.getZone().getZoneGrid());
                         
         Simbad frame = new Simbad(environment, false);
         frame.update(frame.getGraphics());
