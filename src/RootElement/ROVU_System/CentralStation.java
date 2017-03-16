@@ -42,24 +42,14 @@ public class CentralStation extends Subject {
 		initPositions[1] = new Vector3d(-0.5, 0, -0.5);
 		initPositions[2] = new Vector3d(0.5, 0, 0.5);
 		initPositions[3] = new Vector3d(0.5, 0, -0.5);
-		
-		
-		/*environment.addBox(0, 0);
-		
-		environment.addBox(2, 2);
-		environment.addBox(-2, 2);
-		environment.addBox(2, -2);
-		environment.addBox(-2, -2);
-		
-		environment.addWall(0, 5, false);
-		environment.addWall(0, -5, false);
-		environment.addWall(5, 0, true);
-		environment.addWall(-5, 0, true);*/
 	}
 	
 	public void preMissionLaunch(){
 		genGrid();
 		genZones();
+		for(int i = 0; i < this.observers.size(); i++ ){
+			assignZone((Rover)this.observers.get(i), i);
+		}
 		/*assignZone((Rover)this.observers.get(0), 0);
 		assignZone((Rover)this.observers.get(1), 1);
 		assignZone((Rover)this.observers.get(2), 2);
@@ -162,7 +152,7 @@ public class CentralStation extends Subject {
 	}
 
 	public void changeMission(String s) {
-		if(!mission.equals(s)){ // change
+		if(!mission.equals(s)){ // change mission
 			mission = s;
 		}
 	}

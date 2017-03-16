@@ -28,7 +28,6 @@ public abstract class Rover extends Agent implements ObserverInterface{
 	
 	public Rover(Vector3d initPos, String name) {
 		super(initPos, name);
-		System.out.printf("Rover name: %s\n", name);
 	}
 	
 	public String getRoverName(){

@@ -16,11 +16,16 @@ import RootElement.ROVU_System.Rover;
 public class ScoutingRover extends Rover {
 
 	private int proximity;
+	boolean running = true;
+	int count = 0;
+	
+	Coordinate[][] zoneGrid;
+	int grid_i = 1;
+	int grid_j = 0;
 
 	public ScoutingRover(Vector3d position, String name, Subject s, int initdir) {
 		super(position, name);
-		// possible data loss from double -> int conversion...
-		this.setInitialPosition(new Coordinate((int)position.x, (int)position.y, (int)position.z));
+		this.setInitialPosition(new Coordinate(position.x, position.y, position.z));
 		this.setRoverName(name);
 		this.setSubject(s);
 		this.getSubject().attach(this);
@@ -44,21 +49,60 @@ public class ScoutingRover extends Rover {
 	/** This method is called by the simulator engine on reset. */
     public void initBehavior() {
         System.out.printf("I exist and my name is %s\n", this.getName());
+        
+        switch(this.getInitialDirection()) {
+        	case 1: rotateY(-Math.PI); break; // north
+        	case 2: break; // south (default)
+        	default: break;
+        }   
+        
+        zoneGrid = this.getZone().getZoneGrid();
+        
     }
 
     /** This method is call cyclically (20 times per second) by the simulator engine. */
     public void performBehavior() {
     	
-    	if( this.getCounter() % 59 == 0 )
+    	if( this.getCounter() >= count ){
+    		running = true;
+    	}
+    	
+		if(!running){
+			return;
+		}
+		
+    	if( this.getCounter() % 20 == 0 )
     	{
             Point3d loc = new Point3d();
             this.getCoords(loc);
             System.out.printf("%s[%d]: [X(%.1f) Y(%.1f) Z(%.1f)]\n", this.getName(), this.getFramesPerSecond(), loc.getX(), loc.getY(), loc.getZ());
     	}
+    	
  
     	// perform the following actions every 5 virtual seconds
     	if(this.getCounter() % 5 == 0) {
-    	           
+            
+    		Point3d loc = new Point3d();
+            this.getCoords(loc);
+            System.out.printf("Looking for x: %f\n", zoneGrid[grid_i][grid_j].getX());
+            if(loc.getX() <= zoneGrid[grid_i][grid_j].getX())
+            {
+            	System.out.printf("Caught at: %f\n", loc.getX());
+    			this.setTranslationalVelocity(0);
+    			grid_i++;
+    			running = false;
+    			count = this.getCounter() + 100;
+            	return;
+            }
+            
+    		/*if(loc.getX() <= -2 && loc.getX() > -2.3){
+    			System.out.printf("Caught at: %f\n", loc.getX());
+    			this.setTranslationalVelocity(0);
+            	running = false;
+            	return;
+            }*/
+            
+    		
 	    	if(this.collisionDetected()) {
 	    		this.setStatus("avoiObstacle");
 	    	} else {
@@ -70,9 +114,9 @@ public class ScoutingRover extends Rover {
 	            this.setTranslationalVelocity(0.5);
 	            
 	    		// frequently change orientation
-	            if ((getCounter() % 100) == 0) {
+	            /*if ((getCounter() % 100) == 0) {
 	                setRotationalVelocity(Math.PI / 2 * (0.5 - Math.random()));
-	            }    
+	            } */   
 	        } else {
 	        	// don't move
 	        	this.setTranslationalVelocity(0);
