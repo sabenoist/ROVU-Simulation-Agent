@@ -48,8 +48,8 @@ public class Environment extends EnvironmentDescription {
 		return null;
 	}
 
-	public void addBox(int x, int z) {
-		Box box = new Box(new Vector3d(x, 0, z), new Vector3f(1, 1, 1), this);
+	public void addBox(double d, double e) {
+		Box box = new Box(new Vector3d(d, 0, e), new Vector3f(1, 1, 1), this);
 		box.setColor(new Color3f(Color.RED));
 		add(box);
 	}

@@ -4,10 +4,13 @@
 
 package RootElement.ROVU_System;
 
+import java.util.Random;
+
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import RootElement.ROVU_System.Rover;
+import simbad.sim.RobotFactory;
 
 /************************************************************/
 /**
@@ -17,7 +20,6 @@ public class ScoutingRover extends Rover {
 
 	private int proximity;
 	boolean running = true;
-	int count = 0;
 	
 	Coordinate[][] zoneGrid;
 	int grid_i = 1;
@@ -31,6 +33,7 @@ public class ScoutingRover extends Rover {
 		this.getSubject().attach(this);
 		this.setInitialDirection(initdir);
 		this.setType(RoverEnum.SCOUTING_ROVER);
+		RobotFactory.addSonarBeltSensor(this, 1);
 	}
 
 	public int getProximity(){
@@ -57,22 +60,27 @@ public class ScoutingRover extends Rover {
         }   
         
         zoneGrid = this.getZone().getZoneGrid();
-        
     }
 
+    boolean enableRotate = false;
+    
     /** This method is call cyclically (20 times per second) by the simulator engine. */
     public void performBehavior() {
-    	
-    	if( this.getCounter() >= count ){
-    		running = true;
-    	}
     	
 		if(!running){
 			return;
 		}
 		
-    	if( this.getCounter() % 20 == 0 )
+    	if( enableRotate && this.getCounter() > 0 && this.getCounter() % 40 == 0 ) // every 1 meter with 0.5ms
     	{
+    		Random rand = new Random();
+        	int randomValue = rand.nextInt(3); // 0-3: left/right/straight
+        	switch(randomValue){
+        		case 0: rotateY(-(Math.PI / 2)); break;
+        		case 1: rotateY(Math.PI / 2); break;
+        		default: break;
+        	}
+        	System.out.printf("changed direction\n");
             Point3d loc = new Point3d();
             this.getCoords(loc);
             System.out.printf("%s[%d]: [X(%.1f) Y(%.1f) Z(%.1f)]\n", this.getName(), this.getFramesPerSecond(), loc.getX(), loc.getY(), loc.getZ());
@@ -81,7 +89,8 @@ public class ScoutingRover extends Rover {
  
     	// perform the following actions every 5 virtual seconds
     	if(this.getCounter() % 5 == 0) {
-            
+    		
+    		/* code for moving to coords
     		Point3d loc = new Point3d();
             this.getCoords(loc);
             System.out.printf("Looking for x: %f\n", zoneGrid[grid_i][grid_j].getX());
@@ -94,34 +103,24 @@ public class ScoutingRover extends Rover {
     			count = this.getCounter() + 100;
             	return;
             }
-            
-    		/*if(loc.getX() <= -2 && loc.getX() > -2.3){
-    			System.out.printf("Caught at: %f\n", loc.getX());
-    			this.setTranslationalVelocity(0);
-            	running = false;
-            	return;
-            }*/
-            
-    		
+            */
+    		System.out.printf("Proximity: %d\n", this.getProximity());
+
 	    	if(this.collisionDetected()) {
-	    		this.setStatus("avoiObstacle");
+	    		this.setStatus("avoidObstacle");
 	    	} else {
-	    		this.setStatus("goAround");
+	    		this.setStatus("forward");
 	    	}
 	        
-	    	if(this.getStatus() == "goAround") {
+	    	
+	    	if(this.getStatus() == "forward") {
 	    		// the robot's speed is always 0.5 m/s
-	            this.setTranslationalVelocity(0.5);
-	            
-	    		// frequently change orientation
-	            /*if ((getCounter() % 100) == 0) {
-	                setRotationalVelocity(Math.PI / 2 * (0.5 - Math.random()));
-	            } */   
+	            this.setTranslationalVelocity(0.5);  
 	        } else {
-	        	// don't move
-	        	this.setTranslationalVelocity(0);
-	        	// rotate only until obstacle is not there
-	        	setRotationalVelocity(Math.PI / 2);
+	        	// collision detected -> do sth
+	        	Point3d loc = new Point3d();
+	            this.getCoords(loc);
+	            System.out.printf("CollDet: [X(%.1f) Y(%.1f) Z(%.1f)]\n", loc.getX(), loc.getY(), loc.getZ());
 	        }
     	}
     	
