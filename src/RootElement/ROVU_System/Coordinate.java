@@ -10,13 +10,13 @@ package RootElement.ROVU_System;
  */
 public class Coordinate {
 
-	private int x;
-	private int y = 0;
-	private int z;
+	private double x;
+	private double y = 0;
+	private double z;
 	private boolean isCovered;
 	private boolean isObstacle;
 
-	public Coordinate(int x, int y, int z) {
+	public Coordinate(double x, double y, double z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -24,7 +24,7 @@ public class Coordinate {
 		isObstacle = false;
 	}
 
-	public Coordinate(int x, int z) {
+	public Coordinate(double x, double z) {
 		this.x = x;
 		this.z = z;
 		isCovered = false;
@@ -47,7 +47,7 @@ public class Coordinate {
 		return isObstacle;
 	}
 	
-	int getX(){ return x; }
-	int getY(){ return y; }
-	int getZ(){ return z; }
+	double getX(){ return x; }
+	double getY(){ return y; }
+	double getZ(){ return z; }
 };

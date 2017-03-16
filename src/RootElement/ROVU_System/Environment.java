@@ -30,7 +30,7 @@ public class Environment extends EnvironmentDescription {
 		totalAreaSize[0] = areaLength;
 		totalAreaSize[1] = areaWidth;
 		zones = new Zone[4];
-		gridPoints = new Coordinate[areaLength+1][areaWidth+1];
+		gridPoints = new Coordinate[areaLength][areaWidth];
 
 		this.light1IsOn = true;
 		this.light2IsOn = true;
@@ -89,11 +89,35 @@ public class Environment extends EnvironmentDescription {
 		System.out.printf("Printing grid (size:%dx%d)\n", grid.length, grid[0].length);
 		for(int i = 0; i < grid.length; i++){
 			for(int j = 0; j < grid[0].length; j++){
-				System.out.printf("(%d, %d) ", grid[i][j].getX(), grid[i][j].getZ());
+				System.out.printf("(%.1f, %.1f) ", grid[i][j].getX(), grid[i][j].getZ());
 			}
 			System.out.printf("\n");
 		}
 		System.out.printf("\n");
+	}
+	public void utilBoxGrid(Coordinate[][] grid){
+		boolean color = false;
+		for(int i = 0; i < grid.length; i++){
+			for(int j = 0; j < grid[0].length; j++){
+				Box box = new Box(new Vector3d(grid[i][j].getX(), 0,  grid[i][j].getZ()), new Vector3f(1, 1, 1), this);
+				if(color)
+					box.setColor(new Color3f(Color.ORANGE));
+				else
+					box.setColor(new Color3f(Color.BLUE));	
+				add(box);
+				color = !color;
+			}
+		}
+	}
+	
+	public void utilBoxZone(Coordinate[][] grid, Color c){
+		for(int i = 0; i < grid.length; i++){
+			for(int j = 0; j < grid[0].length; j++){
+				Box box = new Box(new Vector3d(grid[i][j].getX(), 0,  grid[i][j].getZ()), new Vector3f(1, 1, 1), this);
+				box.setColor(new Color3f(c));
+				add(box);
+			}
+		}
 	}
 	
 };

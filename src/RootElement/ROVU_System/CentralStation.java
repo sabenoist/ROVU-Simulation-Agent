@@ -4,6 +4,8 @@
 
 package RootElement.ROVU_System;
 
+import java.awt.Color;
+
 import javax.vecmath.Vector3d;
 
 import RootElement.ROVU_System.Coordinate;
@@ -35,17 +37,14 @@ public class CentralStation extends Subject {
 	
 	public void preRoverLaunch(){
 		initPositions = new Vector3d[4];
+	
 		initPositions[0] = new Vector3d(-0.5, 0, 0.5);
 		initPositions[1] = new Vector3d(-0.5, 0, -0.5);
 		initPositions[2] = new Vector3d(0.5, 0, 0.5);
 		initPositions[3] = new Vector3d(0.5, 0, -0.5);
-		/*
-		initPositions[0] = new Vector3d(-1, 0, 1);
-		initPositions[1] = new Vector3d(-1, 0, -1);
-		initPositions[2] = new Vector3d(1, 0, 1);
-		initPositions[3] = new Vector3d(1, 0, -1);
-		*/
-		//environment.addBox(0, 0);
+		
+		
+		/*environment.addBox(0, 0);
 		
 		environment.addBox(2, 2);
 		environment.addBox(-2, 2);
@@ -55,16 +54,16 @@ public class CentralStation extends Subject {
 		environment.addWall(0, 5, false);
 		environment.addWall(0, -5, false);
 		environment.addWall(5, 0, true);
-		environment.addWall(-5, 0, true);
+		environment.addWall(-5, 0, true);*/
 	}
 	
 	public void preMissionLaunch(){
 		genGrid();
 		genZones();
-		assignZone((Rover)this.observers.get(0), 0);
+		/*assignZone((Rover)this.observers.get(0), 0);
 		assignZone((Rover)this.observers.get(1), 1);
 		assignZone((Rover)this.observers.get(2), 2);
-		assignZone((Rover)this.observers.get(3), 3);
+		assignZone((Rover)this.observers.get(3), 3);*/
 	}
 
 	public Vector3d[] getInitPositions() {
@@ -73,18 +72,18 @@ public class CentralStation extends Subject {
 
 	public void genGrid(){
 		int[] areaSize = environment.getAreaSize();
-		Coordinate[][] grid = new Coordinate[areaSize[0]+1][areaSize[1]+1];
+		Coordinate[][] grid = new Coordinate[areaSize[0]][areaSize[1]];
 		
 		int xAxis = areaSize[1]/2;
 		int yAxis = areaSize[0]/2;
 		
-		for(int i = 0; i <= areaSize[0]; i++ ){
-			for(int j = 0; j <= areaSize[1]; j++ ){				
-				grid[i][j] = new Coordinate(i-areaSize[0]/2, j-areaSize[1]/2);
+		for(int i = 0; i < areaSize[0]; i++ ){
+			for(int j = 0; j < areaSize[1]; j++ ){				
+				grid[i][j] = new Coordinate((i-areaSize[0]/2+1)-0.5, (j-areaSize[1]/2+1)-0.5);
 			}
 		}
-		//environment.printGrid(grid);
-		
+		environment.printGrid(grid);
+		//environment.utilBoxGrid(grid);
 		environment.setGrid(grid);
 	}
 	
@@ -110,17 +109,24 @@ public class CentralStation extends Subject {
 		
 		for(int i = 0; i < areaSize[0]/2; i++){
 			for(int j = 0; j < areaSize[1]/2; j++){
-				zoneGrid1[i][j] = new Coordinate((i+1)*-1, (j+1));
-				zoneGrid2[i][j] = new Coordinate((i+1)*-1, (j+1)*-1);
-				zoneGrid3[i][j] = new Coordinate((i+1), (j+1));
-				zoneGrid4[i][j] = new Coordinate((i+1), (j+1)*-1);
+				zoneGrid1[i][j] = new Coordinate(((i+0.5)*-1), (j+0.5));
+				zoneGrid2[i][j] = new Coordinate(((i+0.5)*-1), ((j+0.5)*-1));
+				zoneGrid3[i][j] = new Coordinate((i+0.5), (j+0.5));
+				zoneGrid4[i][j] = new Coordinate((i+0.5), ((j+0.5)*-1));
 			}
 		}
 		
-		//environment.printGrid(zoneGrid1);
-		//environment.printGrid(zoneGrid2);
-		//environment.printGrid(zoneGrid3);
-		//environment.printGrid(zoneGrid4);
+		//util
+		environment.printGrid(zoneGrid1);
+		environment.printGrid(zoneGrid2);
+		environment.printGrid(zoneGrid3);
+		environment.printGrid(zoneGrid4);
+		
+		//util
+		//environment.utilBoxZone(zoneGrid1, Color.BLUE);
+		//environment.utilBoxZone(zoneGrid2, Color.RED);
+		//environment.utilBoxZone(zoneGrid3, Color.YELLOW);
+		//environment.utilBoxZone(zoneGrid4, Color.PINK);
 
 		z1.setZoneGrid(zoneGrid1);
 		z2.setZoneGrid(zoneGrid2);

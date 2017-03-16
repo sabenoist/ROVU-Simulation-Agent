@@ -21,8 +21,6 @@ public class Main {
         
         cs.preRoverLaunch();
         
-        
-                
         // add at least one rover otherwise the environment crashes...
         
         ScoutingRover sr1 = new ScoutingRover(cs.getInitPositions()[0], "bub1", cs, 1);
@@ -36,7 +34,7 @@ public class Main {
                 
         cs.preMissionLaunch();
         
-        cs.getEnvironment().printGrid(sr2.getZone().getZoneGrid());
+        //cs.getEnvironment().printGrid(sr2.getZone().getZoneGrid());
                         
         Simbad frame = new Simbad(environment, false);
         frame.update(frame.getGraphics());
