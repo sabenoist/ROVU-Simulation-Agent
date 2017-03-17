@@ -45,6 +45,7 @@ public class CentralStation extends Subject {
 		
 		
 		environment.addBox(-3.5, 0.5);
+		environment.addBox(-2.5, -3.5);
 		
 	}
 	

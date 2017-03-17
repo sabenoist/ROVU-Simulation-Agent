@@ -10,6 +10,7 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import RootElement.ROVU_System.Rover;
+import simbad.sim.RangeSensorBelt;
 import simbad.sim.RobotFactory;
 
 /************************************************************/
@@ -20,11 +21,15 @@ public class ScoutingRover extends Rover {
 
 	private int proximity;
 	boolean running = true;
+	int proxcheck;
+	int currentDirection;
 	
+	RangeSensorBelt sonar;	
+	/*	camera rover stuff
 	Coordinate[][] zoneGrid;
 	int grid_i = 1;
 	int grid_j = 0;
-
+	*/
 	public ScoutingRover(Vector3d position, String name, Subject s, int initdir) {
 		super(position, name);
 		this.setInitialPosition(new Coordinate(position.x, position.y, position.z));
@@ -33,12 +38,12 @@ public class ScoutingRover extends Rover {
 		this.getSubject().attach(this);
 		this.setInitialDirection(initdir);
 		this.setType(RoverEnum.SCOUTING_ROVER);
-		RobotFactory.addSonarBeltSensor(this, 1);
+		sonar = RobotFactory.addSonarBeltSensor(this, 4);
 	}
 
-	public int getProximity(){
+	/*public int getProximity(){
 		return proximity;
-	}
+	}*/
 	public void setProximity(int p){
 		proximity = p;
 	}
@@ -54,12 +59,12 @@ public class ScoutingRover extends Rover {
         System.out.printf("I exist and my name is %s\n", this.getName());
         
         switch(this.getInitialDirection()) {
-        	case 1: rotateY(-Math.PI); break; // north
-        	case 2: break; // south (default)
+        	case 1: rotateY(-Math.PI); currentDirection = 1; break; // north
+        	case 2: currentDirection = 3; break; // south (default)
         	default: break;
         }   
-        
-        zoneGrid = this.getZone().getZoneGrid();
+       // camera rover stuff
+       // zoneGrid = this.getZone().getZoneGrid();
     }
 
     boolean enableRotate = false;
@@ -67,10 +72,10 @@ public class ScoutingRover extends Rover {
     /** This method is call cyclically (20 times per second) by the simulator engine. */
     public void performBehavior() {
     	
-		if(!running){
+    	if(!running){
 			return;
 		}
-		
+    	
     	if( enableRotate && this.getCounter() > 0 && this.getCounter() % 40 == 0 ) // every 1 meter with 0.5ms
     	{
     		Random rand = new Random();
@@ -86,11 +91,34 @@ public class ScoutingRover extends Rover {
             System.out.printf("%s[%d]: [X(%.1f) Y(%.1f) Z(%.1f)]\n", this.getName(), this.getFramesPerSecond(), loc.getX(), loc.getY(), loc.getZ());
     	}
     	
- 
+    	if( this.getCounter() > proxcheck && sonar.getMeasurement(0) <= 0.2 ){
+			Point3d loc = new Point3d();
+            this.getCoords(loc);
+            System.out.printf("Obj Detected from: [X(%.1f) Y(%.1f) Z(%.1f)]\n", loc.getX(), loc.getY(), loc.getZ());
+            // do something to store the fact
+            double x = loc.getX();
+            double y = loc.getY();
+            double z = loc.getZ();
+            switch(currentDirection){
+            	case 1: x-=1; break;
+            	case 2: z-=1; break;
+            	case 3: x+=1; break;
+            	case 4: z+=1; break;
+            }
+            System.out.printf("Object at: [X(%.1f) Y(%.1f) Z(%.1f)]\n", x, y, z);
+            this.setTranslationalVelocity(0);
+            rotateY(-(Math.PI / 2));
+            currentDirection = currentDirection + 1 % 4;
+            // do not instantly check again otherwise itll turn twice
+            proxcheck = this.getCounter() + 10;
+            
+            return;
+		}
+    	
     	// perform the following actions every 5 virtual seconds
     	if(this.getCounter() % 5 == 0) {
     		
-    		/* code for moving to coords
+    		/* camera rover stuff
     		Point3d loc = new Point3d();
             this.getCoords(loc);
             System.out.printf("Looking for x: %f\n", zoneGrid[grid_i][grid_j].getX());
@@ -104,8 +132,9 @@ public class ScoutingRover extends Rover {
             	return;
             }
             */
-    		System.out.printf("Proximity: %d\n", this.getProximity());
-
+    		
+    		//System.out.printf("Proximity: %f\n", sonar.getMeasurement(0));
+    		
 	    	if(this.collisionDetected()) {
 	    		this.setStatus("avoidObstacle");
 	    	} else {
