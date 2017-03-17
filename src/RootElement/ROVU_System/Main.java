@@ -26,9 +26,9 @@ public class Main {
         
         // add at least one rover otherwise the environment crashes...
         
-        ScoutingRover sr1 = new ScoutingRover(cs.getInitPositions()[0], "Scouting Rover 1", cs, 1);
+        ScoutingRover sr1 = new ScoutingRover(cs.getInitPositions()[0], "Scouting Rover 1", cs, 0);
         environment.add(sr1);
-       /* ScoutingRover sr2 = new ScoutingRover(cs.getInitPositions()[1], "Scouting Rover 2", cs, 1);
+       /* ScoutingRover sr2 = new ScoutingRover(cs.getInitPositions()[1], "Scouting Rover 2", cs, 0);
         environment.add(sr2);
         ScoutingRover sr3 = new ScoutingRover(cs.getInitPositions()[2], "Scouting Rover 3", cs, 2);
         environment.add(sr3);

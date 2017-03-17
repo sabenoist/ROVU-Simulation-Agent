@@ -25,11 +25,11 @@ public class ScoutingRover extends Rover {
 	int currentDirection;
 	
 	RangeSensorBelt sonar;	
-	/*	camera rover stuff
+	//	camera rover stuff
 	Coordinate[][] zoneGrid;
 	int grid_i = 1;
 	int grid_j = 0;
-	*/
+	
 	public ScoutingRover(Vector3d position, String name, Subject s, int initdir) {
 		super(position, name);
 		this.setInitialPosition(new Coordinate(position.x, position.y, position.z));
@@ -59,12 +59,12 @@ public class ScoutingRover extends Rover {
         System.out.printf("I exist and my name is %s\n", this.getName());
         
         switch(this.getInitialDirection()) {
-        	case 1: rotateY(-Math.PI); currentDirection = 1; break; // north
-        	case 2: currentDirection = 3; break; // south (default)
+        	case 0: rotateY(-Math.PI); currentDirection = 0; break; // north
+        	case 2: currentDirection = 2; break; // south (default)
         	default: break;
         }   
        // camera rover stuff
-       // zoneGrid = this.getZone().getZoneGrid();
+        zoneGrid = this.getZone().getZoneGrid();
     }
 
     boolean enableRotate = false;
@@ -75,6 +75,73 @@ public class ScoutingRover extends Rover {
     	if(!running){
 			return;
 		}
+    	
+    	//System.out.printf("Min:(%.1f,%.1f) Max:(%.1f,%.1f)\n", zoneGrid[0][0].getX(),zoneGrid[0][0].getZ(), zoneGrid[zoneGrid.length-1][zoneGrid.length-1].getX(), zoneGrid[zoneGrid.length-1][zoneGrid.length-1].getZ());
+    	if( this.getCounter() > proxcheck )
+    	{
+    	Point3d cur = new Point3d();
+        this.getCoords(cur);
+        //System.out.printf("The current direction is: %d\n", currentDirection);
+        switch(currentDirection){
+        case 0:{ // north
+        	// probably use absolute value for all rover compatibility
+        	if(Math.abs(cur.getX()) > Math.abs(zoneGrid[zoneGrid.length-1][zoneGrid.length-1].getX()))
+        	{
+        		System.out.printf("%f <= %f (north)\n", cur.getX(), zoneGrid[zoneGrid.length-1][zoneGrid.length-1].getX());
+        		this.setTranslationalVelocity(0);
+        		rotateY(-(Math.PI / 2));
+        		System.out.printf("CurrentDirection: %d ->", currentDirection);
+                currentDirection = (currentDirection + 1) % 4;
+                System.out.printf(" %d\n", currentDirection);
+                proxcheck = this.getCounter() + 10;
+                return;
+        	}
+        	break;
+        }
+        case 1:{ // east
+        	if(Math.abs(cur.getZ()) < Math.abs(zoneGrid[0][0].getZ()))
+        	{
+        		System.out.printf("%f >= %f (east)\n", cur.getZ(), zoneGrid[0][0].getZ());
+        		this.setTranslationalVelocity(0);
+        		rotateY(-(Math.PI / 2));
+        		System.out.printf("CurrentDirection: %d ->", currentDirection);
+                currentDirection = (currentDirection + 1) % 4;
+                System.out.printf(" %d\n", currentDirection);
+                proxcheck = this.getCounter() + 10;
+                return;
+        	}
+        	break;
+        }
+        case 2:{ // south
+        	if(Math.abs(cur.getX()) < Math.abs(zoneGrid[0][0].getX()))
+        	{
+        		System.out.printf("%f >= %f (south)\n", cur.getX(), zoneGrid[0][0].getX());
+        		this.setTranslationalVelocity(0);
+        		rotateY(-(Math.PI / 2));
+        		System.out.printf("CurrentDirection: %d ->", currentDirection);
+                currentDirection = (currentDirection + 1) % 4;
+                System.out.printf(" %d\n", currentDirection);
+                proxcheck = this.getCounter() + 10;
+                return;
+        	}
+        	break;
+        }
+        case 3:{ // west
+        	if(Math.abs(cur.getZ()) > Math.abs(zoneGrid[zoneGrid.length-1][zoneGrid.length-1].getZ()))
+        	{
+        		System.out.printf("%f <= %f (west)\n", cur.getZ(), zoneGrid[zoneGrid.length-1][zoneGrid.length-1].getZ());
+        		this.setTranslationalVelocity(0);
+        		rotateY(-(Math.PI / 2));
+        		System.out.printf("CurrentDirection: %d ->", currentDirection);
+                currentDirection = (currentDirection + 1) % 4;
+                System.out.printf(" %d\n", currentDirection);
+                proxcheck = this.getCounter() + 10;
+                return;
+        	}
+        	break;
+        }
+        }
+    	}
     	
     	if( enableRotate && this.getCounter() > 0 && this.getCounter() % 40 == 0 ) // every 1 meter with 0.5ms
     	{
@@ -100,15 +167,15 @@ public class ScoutingRover extends Rover {
             double y = loc.getY();
             double z = loc.getZ();
             switch(currentDirection){
-            	case 1: x-=1; break;
-            	case 2: z-=1; break;
-            	case 3: x+=1; break;
-            	case 4: z+=1; break;
+            	case 0: x-=1; break;
+            	case 1: z-=1; break;
+            	case 2: x+=1; break;
+            	case 3: z+=1; break;
             }
             System.out.printf("Object at: [X(%.1f) Y(%.1f) Z(%.1f)]\n", x, y, z);
             this.setTranslationalVelocity(0);
             rotateY(-(Math.PI / 2));
-            currentDirection = currentDirection + 1 % 4;
+            currentDirection = (currentDirection + 1) % 4;
             // do not instantly check again otherwise itll turn twice
             proxcheck = this.getCounter() + 10;
             
