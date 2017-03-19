@@ -55,10 +55,10 @@ public class CentralStation extends Subject {
 		for(int i = 0; i < this.observers.size(); i++ ){
 			assignZone((Rover)this.observers.get(i), i);
 		}
-		/*assignZone((Rover)this.observers.get(0), 0);
-		assignZone((Rover)this.observers.get(1), 1);
-		assignZone((Rover)this.observers.get(2), 2);
-		assignZone((Rover)this.observers.get(3), 3);*/
+		//assignZone((Rover)this.observers.get(0), 2);
+		//assignZone((Rover)this.observers.get(1), 1);
+		//assignZone((Rover)this.observers.get(2), 2);
+		//assignZone((Rover)this.observers.get(3), 3);
 	}
 
 	public Vector3d[] getInitPositions() {

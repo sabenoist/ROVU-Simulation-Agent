@@ -28,16 +28,16 @@ public class Main {
         
         ScoutingRover sr1 = new ScoutingRover(cs.getInitPositions()[0], "Scouting Rover 1", cs, 0);
         environment.add(sr1);
-       /* ScoutingRover sr2 = new ScoutingRover(cs.getInitPositions()[1], "Scouting Rover 2", cs, 0);
+        ScoutingRover sr2 = new ScoutingRover(cs.getInitPositions()[1], "Scouting Rover 2", cs, 0);
         environment.add(sr2);
         ScoutingRover sr3 = new ScoutingRover(cs.getInitPositions()[2], "Scouting Rover 3", cs, 2);
         environment.add(sr3);
         ScoutingRover sr4 = new ScoutingRover(cs.getInitPositions()[3], "Scouting Rover 4", cs, 2);
-        environment.add(sr4);*/
+        environment.add(sr4);
                 
         cs.preMissionLaunch();
         
-        cs.getEnvironment().printGrid(sr1.getZone().getZoneGrid());
+        //cs.getEnvironment().printGrid(sr1.getZone().getZoneGrid());
         
         /*
 		cs.getEnvironment().utilBoxZone(sr1.getZone().getZoneGrid(), Color.BLUE);
