@@ -18,6 +18,18 @@ public class Zone {
 	public Zone(int id) {
 		this.id = id;
 	}
+	
+	public Coordinate getZoneCoord(double x, double z){
+		Coordinate ret = null;
+		for(int i = 0; i < zoneGrid.length; i++){
+			for(int j = 0; j < zoneGrid[0].length; j++){
+				if(zoneGrid[i][j].getX() == x && zoneGrid[i][j].getZ() == z ){
+					ret = zoneGrid[i][j];
+				}
+			}
+		}
+		return ret;
+	}
 
 	public void setZoneGrid(Coordinate[][] zg) {
 		zoneGrid = zg;

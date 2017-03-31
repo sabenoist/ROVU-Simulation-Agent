@@ -24,14 +24,15 @@ public class ScoutingRover extends Rover {
 	int proxcheck = 0;
 	int zonecheck = 0;
 	int currentDirection;
-	int zoneMin = -1;
-	int zoneMax = -1;
-		
-	RangeSensorBelt sonar;	
+	RangeSensorBelt sonar;
+	
 	//	camera rover stuff
 	Coordinate[][] zoneGrid;
 	int grid_i = 1;
 	int grid_j = 0;
+	
+	// gps req
+	Coordinate currentPosition;
 	
 	public ScoutingRover(Vector3d position, String name, Subject s, int initdir) {
 		super(position, name);
@@ -42,8 +43,9 @@ public class ScoutingRover extends Rover {
 		this.setInitialDirection(initdir);
 		this.setType(RoverEnum.SCOUTING_ROVER);
 		sonar = RobotFactory.addSonarBeltSensor(this, 4);
+		// gps req 
+		currentPosition = new Coordinate(position.x, 0.3, position.z);
 	}
-
 	/*public int getProximity(){
 		return proximity;
 	}*/
@@ -60,7 +62,6 @@ public class ScoutingRover extends Rover {
 	/** This method is called by the simulator engine on reset. */
     public void initBehavior() {
         System.out.printf("I exist and my name is %s\n", this.getName());
-        
         switch(this.getInitialDirection()) {
         	case 0: rotateY(-Math.PI); currentDirection = 0; break; // north
         	case 2: currentDirection = 2; break; // south (default)
@@ -69,8 +70,7 @@ public class ScoutingRover extends Rover {
        // camera rover stuff
         zoneGrid = this.getZone().getZoneGrid();
         zonecheck = 0;
-        proxcheck = 0;
-        
+        proxcheck = 0;        
     }
 
     boolean enableRotate = true;
@@ -100,7 +100,7 @@ public class ScoutingRover extends Rover {
         	}
         	if(outOfBounds){
         		turnAway();
-                return;
+                //return;
         	}
         	break;
         }
@@ -115,7 +115,7 @@ public class ScoutingRover extends Rover {
         	}
         	if(outOfBounds){
         		turnAway();
-                return;
+                //return;
         	}
         	break;
         }
@@ -131,7 +131,7 @@ public class ScoutingRover extends Rover {
         	
         	if(outOfBounds){
         		turnAway();
-                return;
+                //return;
         	}
         	break;
         }
@@ -147,29 +147,50 @@ public class ScoutingRover extends Rover {
         	
         	if(outOfBounds){
         		turnAway();
-                return;
+                //return;
         	}
         	break;
         }
         }
     	}
     	
-    	if( enableRotate && this.getCounter() > 0 && this.getCounter() % 80 == 0 ) // every 2 meter with 0.5ms
+    	if( enableRotate && this.getCounter() > 0 && this.getCounter() > zonecheck && this.getCounter() % 80 == 0 ) // every 2 meter with 0.5ms
     	{
+            Point3d loc = new Point3d();
+            this.getCoords(loc);
     		Random rand = new Random();
-        	int randomValue = rand.nextInt(3); // 0-3: left/right/straight
+        	int randomValue = rand.nextInt(2); // 0-3: left/right/straight
+        	
+        	
+        	double l_x = Math.round(loc.getX() * 10) / 10;
+        	double l_z = Math.round(loc.getZ() * 10) / 10;
+        	
+        	System.out.printf("x: %f, z: %f\n", l_x, l_z);
+        	if(l_x % 0.5 == 0 && l_z % 0.5 == 0){
+        	System.out.printf("Turn allowed\n");
         	switch(randomValue){
         		case 0: rotateY(-(Math.PI / 2)); currentDirection = (currentDirection + 1) % 4; break;
         		case 1: rotateY(Math.PI / 2); currentDirection = currentDirection-1; if(currentDirection<0)currentDirection=3;break;
         		default: break;
         	}
+        	}
+            
+        	/*
+        	switch(this.getZone().getID()){
+        	case 0: rotateY(Math.PI / 2); currentDirection = currentDirection-1; if(currentDirection<0)currentDirection=3;break;
+        	case 1: rotateY(-(Math.PI / 2)); currentDirection = (currentDirection + 1) % 4; break;
+        	case 2: rotateY(Math.PI / 2); currentDirection = currentDirection-1; if(currentDirection<0)currentDirection=3;break;
+        	case 3: rotateY(-(Math.PI / 2)); currentDirection = (currentDirection + 1) % 4; break;
+        	}*/
+        	
         	//System.out.printf("changed direction\n");
-            Point3d loc = new Point3d();
-            this.getCoords(loc);
+
             //System.out.printf("%s[%d]: [X(%.1f) Y(%.1f) Z(%.1f)]\n", this.getName(), this.getFramesPerSecond(), loc.getX(), loc.getY(), loc.getZ());
     	}
     	
+    	
     	if( this.getCounter() > proxcheck && sonar.getMeasurement(0) <= 0.2 ){
+    		//System.out.printf("Counter before: %d\n", this.getCounter());
 			Point3d loc = new Point3d();
             this.getCoords(loc);
             System.out.printf("Obj Detected from: [X(%.1f) Y(%.1f) Z(%.1f)]\n", loc.getX(), loc.getY(), loc.getZ());
@@ -183,15 +204,44 @@ public class ScoutingRover extends Rover {
             	case 2: x+=1; break;
             	case 3: z+=1; break;
             }
+            //x = Math.round(x*2) / 2.0f;
+            //z = Math.round(z*2) / 2.0f;
             System.out.printf("Object at: [X(%.1f) Y(%.1f) Z(%.1f)]\n", x, y, z);
             this.setTranslationalVelocity(0);
             rotateY(-(Math.PI / 2));
+            //rotateY((Math.PI));
             currentDirection = (currentDirection + 1) % 4;
             // do not instantly check again otherwise itll turn twice
             proxcheck = this.getCounter() + 10;
-            
-            return;
+    		//System.out.printf("Counter after: %d\n", this.getCounter());
 		}
+    	
+    	if(this.getCounter() > 0 && this.getTranslationalVelocity() > 0){
+    		Coordinate oldPos = currentPosition;
+    		switch(currentDirection){
+    		// getvelocity/20 = 0.025
+    		case 0: // north
+    			currentPosition = new Coordinate(oldPos.getX()-0.025, oldPos.getY(), oldPos.getZ());
+    			break;
+    		case 1: // east
+    			currentPosition = new Coordinate(oldPos.getX(), oldPos.getY(), oldPos.getZ()-0.025);
+    			break;
+    		case 2: // south
+    			currentPosition = new Coordinate(oldPos.getX()+0.025, oldPos.getY(), oldPos.getZ());
+    			break;
+    		case 3: // west
+    			currentPosition = new Coordinate(oldPos.getX(), oldPos.getY(), oldPos.getZ()+0.025);
+    			break;
+    		}
+    		
+    	}
+    	
+    	if(this.getCounter() % 20 == 0 ){
+    		Point3d loc = new Point3d();
+            this.getCoords(loc);            
+    		System.out.printf("(%s) GPS position: [%.1f - %.1f - %.1f]\n", this.getName(), loc.getX(), loc.getY(), loc.getZ());
+    		//System.out.printf("(%s) New position: [%.1f - %.1f - %.1f]\n", this.getName(), currentPosition.getX(), currentPosition.getY(), currentPosition.getZ());
+    	}
     	
     	// perform the following actions every 5 virtual seconds
     	if(this.getCounter() % 5 == 0) {

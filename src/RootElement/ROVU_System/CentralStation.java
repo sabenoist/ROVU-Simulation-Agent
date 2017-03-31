@@ -46,7 +46,8 @@ public class CentralStation extends Subject {
 		
 		environment.addBox(-3.5, 0.5);
 		environment.addBox(-2.5, -3.5);
-		
+		environment.addBox(2.5, 1.5);
+		environment.addBox(-2.5, 3.5);
 	}
 	
 	public void preMissionLaunch(){

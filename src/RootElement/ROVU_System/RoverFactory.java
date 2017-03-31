@@ -22,7 +22,7 @@ public class RoverFactory {
 			// how would this even work with the super() constructor towards Agent requiring initpos...
 			//return new ScoutingRover();
 		}else if(s.compareToIgnoreCase("camera") == 0){
-			return new CameraRover();
+			//return new CameraRover();
 		}else{
 			System.out.printf("getRover(): ERROR: rover type not found.\n");
 		}
