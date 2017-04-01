@@ -25,6 +25,7 @@ public class ScoutingRover extends Rover {
 	int zonecheck = 0;
 	int currentDirection;
 	RangeSensorBelt sonar;
+	int turnAgain = 0;
 	
 	//	camera rover stuff
 	Coordinate[][] zoneGrid;
@@ -73,7 +74,7 @@ public class ScoutingRover extends Rover {
         proxcheck = 0;        
     }
 
-    boolean enableRotate = true;
+    boolean enableRotate = false;
     
     /** This method is call cyclically (20 times per second) by the simulator engine. */
     public void performBehavior() {
@@ -82,139 +83,11 @@ public class ScoutingRover extends Rover {
 			return;
 		}
     	
-    	//System.out.printf("Min:(%.1f,%.1f) Max:(%.1f,%.1f)\n", zoneGrid[0][0].getX(),zoneGrid[0][0].getZ(), zoneGrid[zoneGrid.length-1][zoneGrid.length-1].getX(), zoneGrid[zoneGrid.length-1][zoneGrid.length-1].getZ());
-    	if( this.getCounter() > zonecheck )
-    	{
-    	Point3d cur = new Point3d();
-        this.getCoords(cur);
-        //System.out.printf("The current direction is: %d\n", currentDirection);
-        switch(currentDirection){
-        case 0:{ // north
-        	
-        	boolean outOfBounds = false;
-        	switch(this.getZone().getID()){
-        		case 0: outOfBounds = checkOutOfBoundsMaxX(cur); break;
-        		case 1: outOfBounds = checkOutOfBoundsMaxX(cur); break;
-        		case 2: outOfBounds = checkOutOfBoundsMinX(cur); break;
-        		case 3: outOfBounds = checkOutOfBoundsMinX(cur); break;
-        	}
-        	if(outOfBounds){
-        		turnAway();
-                //return;
-        	}
-        	break;
-        }
-        case 1:{ // east
-
-        	boolean outOfBounds = false;
-        	switch(this.getZone().getID()){
-        		case 0: outOfBounds = checkOutOfBoundsMinZ(cur); break;
-        		case 1: outOfBounds = checkOutOfBoundsMaxZ(cur); break;
-        		case 2: outOfBounds = checkOutOfBoundsMinZ(cur); break;
-        		case 3: outOfBounds = checkOutOfBoundsMaxZ(cur); break;
-        	}
-        	if(outOfBounds){
-        		turnAway();
-                //return;
-        	}
-        	break;
-        }
-        case 2:{ // south
-
-        	boolean outOfBounds = false;
-        	switch(this.getZone().getID()){
-        		case 0: outOfBounds = checkOutOfBoundsMinX(cur); break;
-        		case 1: outOfBounds = checkOutOfBoundsMinX(cur); break;
-        		case 2: outOfBounds = checkOutOfBoundsMaxX(cur); break;
-        		case 3: outOfBounds = checkOutOfBoundsMaxX(cur); break;
-        	}
-        	
-        	if(outOfBounds){
-        		turnAway();
-                //return;
-        	}
-        	break;
-        }
-        case 3:{ // west
-        	
-        	boolean outOfBounds = false;
-        	switch(this.getZone().getID()){
-        		case 0: outOfBounds = checkOutOfBoundsMaxZ(cur); break;
-        		case 1: outOfBounds = checkOutOfBoundsMinZ(cur); break;
-        		case 2: outOfBounds = checkOutOfBoundsMaxZ(cur); break;
-        		case 3: outOfBounds = checkOutOfBoundsMinZ(cur); break;
-        	}
-        	
-        	if(outOfBounds){
-        		turnAway();
-                //return;
-        	}
-        	break;
-        }
-        }
+    	if(this.getCounter() > 120){
+    		CentralStation cs = (CentralStation)this.getSubject();
+    		cs.finishScouting();
+    		return;
     	}
-    	
-    	if( enableRotate && this.getCounter() > 0 && this.getCounter() > zonecheck && this.getCounter() % 80 == 0 ) // every 2 meter with 0.5ms
-    	{
-            Point3d loc = new Point3d();
-            this.getCoords(loc);
-    		Random rand = new Random();
-        	int randomValue = rand.nextInt(2); // 0-3: left/right/straight
-        	
-        	
-        	double l_x = Math.round(loc.getX() * 10) / 10;
-        	double l_z = Math.round(loc.getZ() * 10) / 10;
-        	
-        	System.out.printf("x: %f, z: %f\n", l_x, l_z);
-        	if(l_x % 0.5 == 0 && l_z % 0.5 == 0){
-        	System.out.printf("Turn allowed\n");
-        	switch(randomValue){
-        		case 0: rotateY(-(Math.PI / 2)); currentDirection = (currentDirection + 1) % 4; break;
-        		case 1: rotateY(Math.PI / 2); currentDirection = currentDirection-1; if(currentDirection<0)currentDirection=3;break;
-        		default: break;
-        	}
-        	}
-            
-        	/*
-        	switch(this.getZone().getID()){
-        	case 0: rotateY(Math.PI / 2); currentDirection = currentDirection-1; if(currentDirection<0)currentDirection=3;break;
-        	case 1: rotateY(-(Math.PI / 2)); currentDirection = (currentDirection + 1) % 4; break;
-        	case 2: rotateY(Math.PI / 2); currentDirection = currentDirection-1; if(currentDirection<0)currentDirection=3;break;
-        	case 3: rotateY(-(Math.PI / 2)); currentDirection = (currentDirection + 1) % 4; break;
-        	}*/
-        	
-        	//System.out.printf("changed direction\n");
-
-            //System.out.printf("%s[%d]: [X(%.1f) Y(%.1f) Z(%.1f)]\n", this.getName(), this.getFramesPerSecond(), loc.getX(), loc.getY(), loc.getZ());
-    	}
-    	
-    	
-    	if( this.getCounter() > proxcheck && sonar.getMeasurement(0) <= 0.2 ){
-    		//System.out.printf("Counter before: %d\n", this.getCounter());
-			Point3d loc = new Point3d();
-            this.getCoords(loc);
-            System.out.printf("Obj Detected from: [X(%.1f) Y(%.1f) Z(%.1f)]\n", loc.getX(), loc.getY(), loc.getZ());
-            // do something to store the fact
-            double x = loc.getX();
-            double y = loc.getY();
-            double z = loc.getZ();
-            switch(currentDirection){
-            	case 0: x-=1; break;
-            	case 1: z-=1; break;
-            	case 2: x+=1; break;
-            	case 3: z+=1; break;
-            }
-            //x = Math.round(x*2) / 2.0f;
-            //z = Math.round(z*2) / 2.0f;
-            System.out.printf("Object at: [X(%.1f) Y(%.1f) Z(%.1f)]\n", x, y, z);
-            this.setTranslationalVelocity(0);
-            rotateY(-(Math.PI / 2));
-            //rotateY((Math.PI));
-            currentDirection = (currentDirection + 1) % 4;
-            // do not instantly check again otherwise itll turn twice
-            proxcheck = this.getCounter() + 10;
-    		//System.out.printf("Counter after: %d\n", this.getCounter());
-		}
     	
     	if(this.getCounter() > 0 && this.getTranslationalVelocity() > 0){
     		Coordinate oldPos = currentPosition;
@@ -233,13 +106,116 @@ public class ScoutingRover extends Rover {
     			currentPosition = new Coordinate(oldPos.getX(), oldPos.getY(), oldPos.getZ()+0.025);
     			break;
     		}
-    		
     	}
+    	
+    	
+    	if(this.getCounter() > 0 && this.getCounter() == turnAgain){
+    		turnRandomLeftRight();
+    	}
+    	
+    	if( this.getCounter() > zonecheck )
+    	{
+        //System.out.printf("The current direction is: %d\n", currentDirection);
+        switch(currentDirection){
+        case 0:{ // north
+        	
+        	boolean outOfBounds = false;
+        	switch(this.getZone().getID()){
+        		case 0: outOfBounds = checkOutOfBoundsMaxX(currentPosition); break;
+        		case 1: outOfBounds = checkOutOfBoundsMaxX(currentPosition); break;
+        		case 2: outOfBounds = checkOutOfBoundsMinX(currentPosition); break;
+        		case 3: outOfBounds = checkOutOfBoundsMinX(currentPosition); break;
+        	}
+        	if(outOfBounds){
+        		turnAway();
+                //return;
+        	}
+        	break;
+        }
+        case 1:{ // east
+
+        	boolean outOfBounds = false;
+        	switch(this.getZone().getID()){
+        		case 0: outOfBounds = checkOutOfBoundsMinZ(currentPosition); break;
+        		case 1: outOfBounds = checkOutOfBoundsMaxZ(currentPosition); break;
+        		case 2: outOfBounds = checkOutOfBoundsMinZ(currentPosition); break;
+        		case 3: outOfBounds = checkOutOfBoundsMaxZ(currentPosition); break;
+        	}
+        	if(outOfBounds){
+        		turnAway();
+                //return;
+        	}
+        	break;
+        }
+        case 2:{ // south
+
+        	boolean outOfBounds = false;
+        	switch(this.getZone().getID()){
+        		case 0: outOfBounds = checkOutOfBoundsMinX(currentPosition); break;
+        		case 1: outOfBounds = checkOutOfBoundsMinX(currentPosition); break;
+        		case 2: outOfBounds = checkOutOfBoundsMaxX(currentPosition); break;
+        		case 3: outOfBounds = checkOutOfBoundsMaxX(currentPosition); break;
+        	}
+        	
+        	if(outOfBounds){
+        		turnAway();
+                //return;
+        	}
+        	break;
+        }
+        case 3:{ // west
+        	
+        	boolean outOfBounds = false;
+        	switch(this.getZone().getID()){
+        		case 0: outOfBounds = checkOutOfBoundsMaxZ(currentPosition); break;
+        		case 1: outOfBounds = checkOutOfBoundsMinZ(currentPosition); break;
+        		case 2: outOfBounds = checkOutOfBoundsMaxZ(currentPosition); break;
+        		case 3: outOfBounds = checkOutOfBoundsMinZ(currentPosition); break;
+        	}
+        	
+        	if(outOfBounds){
+        		turnAway();
+                //return;
+        	}
+        	break;
+        }
+        }
+    	}
+    	
+    	if( this.getCounter() > proxcheck && sonar.getMeasurement(0) <= 0.2 ){
+    		//System.out.printf("Counter before: %d\n", this.getCounter());
+			Point3d loc = new Point3d();
+            this.getCoords(loc);
+            //System.out.printf("Obj Detected from: [X(%.1f) Y(%.1f) Z(%.1f)]\n", loc.getX(), loc.getY(), loc.getZ());
+            // do something to store the fact
+            double x = loc.getX();
+            double z = loc.getZ();
+            switch(currentDirection){
+            	case 0: x-=1; break;
+            	case 1: z-=1; break;
+            	case 2: x+=1; break;
+            	case 3: z+=1; break;
+            }
+            System.out.printf("[%d] Object detected at %.1f ~ %.1f --> becomes ", this.getCounter(), x, z);
+            x = Math.round(x*2) / 2.0f;
+            z = Math.round(z*2) / 2.0f;
+            System.out.printf("object at: %.1f ~ %.1f\n", x, z);
+    	
+        	Coordinate zoneCoord = this.getZone().getZoneCoord(x, z);
+        	if(zoneCoord != null){
+        		if(!zoneCoord.isObstacle())
+        			zoneCoord.setObstacle(true);
+        	}
+            
+            turnRandomLeftRight();
+            // do not instantly check again otherwise itll turn twice
+            proxcheck = this.getCounter() + 10;
+		}
     	
     	if(this.getCounter() % 20 == 0 ){
     		Point3d loc = new Point3d();
             this.getCoords(loc);            
-    		System.out.printf("(%s) GPS position: [%.1f - %.1f - %.1f]\n", this.getName(), loc.getX(), loc.getY(), loc.getZ());
+    		//System.out.printf("(%s) GPS position: [%.1f - %.1f - %.1f]\n", this.getName(), loc.getX(), loc.getY(), loc.getZ());
     		//System.out.printf("(%s) New position: [%.1f - %.1f - %.1f]\n", this.getName(), currentPosition.getX(), currentPosition.getY(), currentPosition.getZ());
     	}
     	
@@ -283,25 +259,42 @@ public class ScoutingRover extends Rover {
     	
     }
     
-    boolean checkOutOfBoundsMaxX(Point3d pos){
+    void turnRandomLeftRight(){
+		this.setStatus("turning");
+		Random r = new Random();
+    	int rand = r.nextInt(2);
+    	switch(rand){
+    	case 0:{
+    		rotateY((Math.PI)/2); currentDirection = currentDirection - 1; if(currentDirection<0)currentDirection=3;
+    		break;
+    	}
+    	case 1:{
+    		rotateY(-(Math.PI)/2); currentDirection = (currentDirection + 1) % 4;
+    		break;
+    	}
+    	}
+    	this.setStatus("forward");
+    }
+    
+    boolean checkOutOfBoundsMaxX(Coordinate pos){
     	if(Math.abs(pos.getX()) > Math.abs(zoneGrid[zoneGrid.length-1][zoneGrid.length-1].getX())){
     		return true;
     	}
     	return false;
     }
-    boolean checkOutOfBoundsMinX(Point3d pos){
+    boolean checkOutOfBoundsMinX(Coordinate pos){
     	if(Math.abs(pos.getX()) < Math.abs(zoneGrid[0][0].getX())){
     		return true;
     	}
     	return false;
     }
-    boolean checkOutOfBoundsMaxZ(Point3d pos){
+    boolean checkOutOfBoundsMaxZ(Coordinate pos){
     	if(Math.abs(pos.getZ()) > Math.abs(zoneGrid[zoneGrid.length-1][zoneGrid.length-1].getZ())){
     		return true;
     	}
     	return false;
     }
-    boolean checkOutOfBoundsMinZ(Point3d pos){
+    boolean checkOutOfBoundsMinZ(Coordinate pos){
     	if(Math.abs(pos.getZ()) < Math.abs(zoneGrid[0][0].getZ())){
     		return true;
     	}
@@ -309,15 +302,23 @@ public class ScoutingRover extends Rover {
     }
 
     void turnAway(){
+		this.setStatus("turning");
 		this.setTranslationalVelocity(0);
-		rotateY(-(Math.PI / 2));
-        currentDirection = (currentDirection + 1) % 4;
+		rotateY(-(Math.PI)); 
+		currentDirection = (currentDirection + 2) % 4;
+		turnAgain = this.getCounter() + 39;
         zonecheck = this.getCounter() + 10;
+        this.setStatus("forward");
     }
     
 	@Override
 	public void update() {
-		System.out.printf("i updated lol\n");
+		if(this.getSubject().getState() == 1){
+			this.setTranslationalVelocity(0);
+			this.setStatus("stopped");
+			running = false;
+			this.moveToStartPosition();
+		}
 		
 	}
 };

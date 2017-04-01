@@ -88,6 +88,12 @@ public class CameraRover extends Rover {
 			return;
 		}
     	
+    	if(this.getCounter() % 100 == 0){
+			CentralStation cs = (CentralStation)this.getSubject();
+    		System.out.printf("Progress: %.1f\n", cs.getProgress());
+    	}
+    	 
+    	
     	if(this.getCounter() > 0 && this.getTranslationalVelocity() > 0){
     		Coordinate oldPos = currentPosition;
     		switch(currentDirection){
@@ -141,10 +147,13 @@ public class CameraRover extends Rover {
     					zoneCoord.setCovered(true);
     					picturesTaken = 0;
     					
+						CentralStation cs = (CentralStation)this.getSubject();
+						cs.updateProgess(cs.getProgress()+1);
+    					
     					if(grid_i == zoneGrid.length-1 && grid_j == zoneGrid.length-1){
     						System.out.printf("DONE!\n");
-    						this.setStatus("finished");
-    						//this.getSubject().
+    						this.setStatus("finished");		
+    						cs.updateFinishedRovers();
     						running = false;
     						return;
     					}
@@ -239,8 +248,6 @@ public class CameraRover extends Rover {
     		System.out.printf("Not found: %f ~ %f ... (%f ~ %f)\n", currentPosition.getX(), currentPosition.getZ(), loc.getX(), loc.getZ());
     		
     	}
-    	
-    	
     	
     	if(this.getCounter() % 20 == 0 ){
     		Point3d loc = new Point3d();

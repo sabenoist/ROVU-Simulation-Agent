@@ -39,6 +39,23 @@ public class Environment extends EnvironmentDescription {
 		this.setWorldSize(areaLength); // rectangles?
 		
 	}
+	
+	public Environment(int areaLength, int areaWidth, Coordinate[][] g, Zone[] z){
+		totalAreaSize = new int[2];
+		totalAreaSize[0] = areaLength;
+		totalAreaSize[1] = areaWidth;
+		zones = new Zone[4];
+		gridPoints = new Coordinate[areaLength][areaWidth];
+
+		this.light1IsOn = true;
+		this.light2IsOn = true;
+		this.setUsePhysics(true);
+		this.showAxis(true);
+		this.setWorldSize(areaLength); // rectangles?
+		
+		gridPoints = g;
+		zones = z;
+	}
 
 	public Zone getZone(int id) {
 		if (id < zones.length) {
@@ -46,6 +63,10 @@ public class Environment extends EnvironmentDescription {
 		}
 		System.out.printf("Zone ID %d does not exist.\n", id);
 		return null;
+	}
+	
+	public Zone[] getZones(){
+		return zones;
 	}
 
 	public void addBox(double d, double e) {

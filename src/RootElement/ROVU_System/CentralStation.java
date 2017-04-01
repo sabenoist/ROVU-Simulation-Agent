@@ -28,6 +28,7 @@ public class CentralStation extends Subject {
 	private TaskFactory taskFactory;
 	private RoverFactory roverFactory;
 	private Vector3d[] initPositions;
+	private int finishedRovers;
 	private static RootElement.ROVU_System.CentralStation instance = new CentralStation();
 
 	private CentralStation() {
@@ -36,6 +37,7 @@ public class CentralStation extends Subject {
 	}
 	
 	public void preRoverLaunch(){
+		finishedRovers = 0;
 		initPositions = new Vector3d[4];
 	
 		initPositions[0] = new Vector3d(-0.5, 0, 0.5);
@@ -43,11 +45,11 @@ public class CentralStation extends Subject {
 		initPositions[2] = new Vector3d(0.5, 0, 0.5);
 		initPositions[3] = new Vector3d(0.5, 0, -0.5);
 		
-		/*
+		
 		environment.addBox(-3.5, 0.5);
-		environment.addBox(-2.5, -3.5);
-		environment.addBox(2.5, 1.5);
-		environment.addBox(-2.5, 3.5);*/
+		//environment.addBox(-2.5, -3.5);
+		//environment.addBox(2.5, 1.5);
+		environment.addBox(-2.5, 3.5);
 	}
 	
 	public void preMissionLaunch(){
@@ -196,4 +198,13 @@ public class CentralStation extends Subject {
 		return roverFactory;
 	}	
 	
+	public void updateFinishedRovers(){
+		finishedRovers++;
+		if(finishedRovers == this.observers.size()){
+			System.out.printf("Mission complete. Covered: %.0f%%/100%%\n", progress );
+		}
+	}
+	public void finishScouting(){
+		this.setState(1);
+	}
 };
