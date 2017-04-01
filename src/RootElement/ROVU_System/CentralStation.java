@@ -46,10 +46,10 @@ public class CentralStation extends Subject {
 		initPositions[3] = new Vector3d(0.5, 0, -0.5);
 		
 		
-		environment.addBox(-3.5, 0.5);
-		environment.addBox(-2.5, -3.5);
-		environment.addBox(2.5, 1.5);
-		environment.addBox(-2.5, 3.5);
+//		environment.addBox(-3.5, 0.5);
+//		environment.addBox(-2.5, -3.5);
+//		environment.addBox(2.5, 1.5);
+//		environment.addBox(-2.5, 3.5);
 	}
 	
 	public void preMissionLaunch(){

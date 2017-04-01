@@ -83,7 +83,7 @@ public class ScoutingRover extends Rover {
 			return;
 		}
     	
-    	if(this.getCounter() > 2400){
+    	if(this.getCounter() > 240){
     		CentralStation cs = (CentralStation)this.getSubject();
     		cs.finishScouting();
     		this.setTranslationalVelocity(0);

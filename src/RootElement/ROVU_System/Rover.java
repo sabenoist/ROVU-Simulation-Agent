@@ -17,6 +17,12 @@ import simbad.sim.Agent;
  */
 public abstract class Rover extends Agent implements ObserverInterface{
 	
+	final static int NORTH = 0;
+	final static int EAST = 1;
+	final static int SOUTH = 2;
+	final static int WEST = 3;
+	final static int TICK_RATE = 20;
+	
 	private String roverName;
 	private RoverEnum type;
 	private String status;

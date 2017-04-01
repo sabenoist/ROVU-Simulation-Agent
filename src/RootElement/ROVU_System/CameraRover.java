@@ -160,24 +160,24 @@ public class CameraRover extends Rover {
     	}
     	 
     	
-    	if(this.getCounter() > 0 && this.getTranslationalVelocity() > 0){
-    		Coordinate oldPos = currentPosition;
-    		switch(currentDirection){
-    		// getvelocity/20 = 0.025
-    		case 0: // north
-    			currentPosition = new Coordinate(oldPos.getX()-0.025, oldPos.getY(), oldPos.getZ());
-    			break;
-    		case 1: // east
-    			currentPosition = new Coordinate(oldPos.getX(), oldPos.getY(), oldPos.getZ()-0.025);
-    			break;
-    		case 2: // south
-    			currentPosition = new Coordinate(oldPos.getX()+0.025, oldPos.getY(), oldPos.getZ());
-    			break;
-    		case 3: // west
-    			currentPosition = new Coordinate(oldPos.getX(), oldPos.getY(), oldPos.getZ()+0.025);
-    			break;
-    		}
-    	}
+		if (this.getCounter() > 0 && this.getTranslationalVelocity() > 0) {
+			Coordinate oldPos = currentPosition;
+			double distance = this.getTranslationalVelocity() / TICK_RATE;
+			switch (currentDirection) {
+    			case NORTH:
+    				currentPosition = new Coordinate(oldPos.getX()-distance, oldPos.getY(), oldPos.getZ());
+    				break;
+    			case EAST:
+    				currentPosition = new Coordinate(oldPos.getX(), oldPos.getY(), oldPos.getZ()-distance);
+    				break;
+    			case SOUTH:
+    				currentPosition = new Coordinate(oldPos.getX()+distance, oldPos.getY(), oldPos.getZ());
+    				break;
+    			case WEST:
+    				currentPosition = new Coordinate(oldPos.getX(), oldPos.getY(), oldPos.getZ()+distance);
+    				break;
+			}
+		}
     	
     	if( this.getCounter() <= moveuntil ){
     		this.setStatus("forward");
