@@ -31,8 +31,9 @@ public class CameraRover extends Rover {
 	
 	//	camera rover stuff
 	Coordinate[][] zoneGrid;
-	int grid_i = 1;
+	int grid_i = 0;
 	int grid_j = 0;
+	boolean traverseUp = true;
 	Coordinate lastCoord;
 	
 	// gps req
@@ -87,49 +88,6 @@ public class CameraRover extends Rover {
 			return;
 		}
     	
-    	Coordinate current = this.getZone().getZoneCoord((currentPosition.getX()*10)/10, (currentPosition.getZ()*10)/10);
-    	if( current != null )
-    	{
-    		//System.out.printf("Im at %f %f\n", current.getX(), current.getZ());
-    	}
-    	
-    	if( this.getCounter() <= moveuntil ){
-    		this.setStatus("forward");
-    	}
-    	else{
-    		this.setStatus("idk");
-    		this.setTranslationalVelocity(0);
-    		//System.out.printf("Im at %f %f\n", currentPosition.getX(), currentPosition.getZ());
-    		
-    		// do something with last coord here
-    	}
-    	
-    
-    	Coordinate zoneCoord = this.getZone().getZoneCoord(lastCoord.getX(), lastCoord.getZ());
-    	if( zoneCoord != null ){
-    		if(!zoneCoord.isCovered()){
-    			this.setTranslationalVelocity(0);
-    			this.setStatus("TakingPictures");
-    			if(this.getCounter() >= lastPicture){
-    				takePicture();
-    				rotateY(-(Math.PI / 2));
-    				currentDirection = (currentDirection + 1) % 4;
-    				lastPicture = this.getCounter() + 40;
-    				picturesTaken++;
-    				if(picturesTaken == 4){
-    					zoneCoord.setCovered(true);
-    					picturesTaken = 0;
-    					moveuntil = this.getCounter() + 40;
-    					this.setStatus("forward");
-    				}
-    			}
-    		}
-    		else{
-    			//moveToNextPosition();
-    		}
-    	}else{
-    		System.out.printf("why is the coordinate not found?\n");
-    	}
     	if(this.getCounter() > 0 && this.getTranslationalVelocity() > 0){
     		Coordinate oldPos = currentPosition;
     		switch(currentDirection){
@@ -148,6 +106,141 @@ public class CameraRover extends Rover {
     			break;
     		}
     	}
+    	
+    	if( this.getCounter() <= moveuntil ){
+    		this.setStatus("forward");
+    	}
+    	else{
+    		this.setStatus("transitioning to taking pictures idk");
+    		this.setTranslationalVelocity(0);
+    		
+    		double x = currentPosition.getX()*100;
+    		double z = currentPosition.getZ()*100;
+    		x = Math.round(x);
+    		z = Math.round(z);
+    		x /= 100;
+    		z /= 100;
+    		
+    		lastCoord = new Coordinate(x, z);
+    		//System.out.printf("trying to find: %f - %f\n", this.zoneGrid[1][0].getX(), this.zoneGrid[1][0].getZ());
+    	}
+    	
+    	Coordinate zoneCoord = this.getZone().getZoneCoord(lastCoord.getX(), lastCoord.getZ());
+    	if( zoneCoord != null ){
+    		if(!zoneCoord.isCovered()){
+    			this.setTranslationalVelocity(0);
+    			this.setStatus("TakingPictures");
+    			if(this.getCounter() >= lastPicture){
+    				takePicture();
+    				rotateY(-(Math.PI / 2));
+    				currentDirection = (currentDirection + 1) % 4;
+    				lastPicture = this.getCounter() + 5;
+    				picturesTaken++;
+    				
+    				if(picturesTaken == 4){
+    					zoneCoord.setCovered(true);
+    					picturesTaken = 0;
+    					
+    					if(grid_i == zoneGrid.length-1 && grid_j == zoneGrid.length-1){
+    						System.out.printf("DONE!\n");
+    						this.setStatus("finished");
+    						//this.getSubject().
+    						running = false;
+    						return;
+    					}
+    					
+    			    	if(traverseUp){
+    			    		grid_i++;
+    			    		if( grid_i == zoneGrid.length ){
+    			    			grid_i--;
+    			    			grid_j++;
+    			    			traverseUp=false;
+    			    		}
+    			    	}else{
+    			    		grid_i--;
+    			    		if(grid_i < 0){
+    			    			grid_i++;
+    			    			grid_j++;
+    			    			traverseUp=true;
+    			    		}
+    			    	}
+    			    	
+    					Coordinate nextDest = zoneGrid[grid_i][grid_j];
+    					//System.out.printf("Dest: [%d][%d]: %f ~ %f   ... current: %f ~ %f\n", grid_i, grid_j, nextDest.getX(), nextDest.getZ(), currentPosition.getX(), currentPosition.getZ());
+    					
+    					// afronden
+    					double cur_x = currentPosition.getX()*100;
+    		    		double cur_z = currentPosition.getZ()*100;
+    		    		cur_x = Math.round(cur_x);
+    		    		cur_x /= 100;
+    		    		cur_z = Math.round(cur_z);
+    		    		cur_z /= 100;
+    		    		
+    		    		double dest_x = nextDest.getX() * 100;
+    		    		dest_x = Math.round(dest_x);
+    		    		dest_x /= 100;
+    		    		double dest_z = nextDest.getZ() * 100;
+    		    		dest_z = Math.round(dest_z);
+    		    		dest_z /= 100;
+    		    		//System.out.printf("dest: %f~%f ... cur: %f~%f\n", dest_x, dest_z, cur_x, cur_z);
+    					
+    					if(dest_x > cur_x){
+    						//System.out.printf("GO SOUTH\n");
+    						// go south
+    						switch(currentDirection){
+    							case 0: rotateY(-(Math.PI)); currentDirection = (currentDirection + 2) % 4; break;
+    							case 1: rotateY(-(Math.PI)/2); currentDirection = (currentDirection + 1) % 4; break;
+    							case 2: break; // already south
+    							case 3: rotateY((Math.PI)/2); currentDirection = currentDirection - 1; if(currentDirection<0)currentDirection=3; break;
+    						}
+    					}
+    					else if(dest_x < cur_x){
+    						//System.out.printf("GO NORTH\n");
+    						// go north
+    						switch(currentDirection){
+								case 0: break; // already north
+								case 1: rotateY((Math.PI)/2); currentDirection = currentDirection - 1; if(currentDirection<0)currentDirection=3; break;
+								case 2: rotateY(-(Math.PI)); currentDirection = (currentDirection + 2) % 4; break;
+								case 3: rotateY(-(Math.PI)/2); currentDirection = (currentDirection + 1) % 4; break;
+    						}
+        					//System.out.printf("My new direction is: %d\n", currentDirection);
+    					}
+    					else if(dest_z > cur_z){
+    						//System.out.printf("GO WEST\n");
+    						// go west
+    						switch(currentDirection){
+								case 0: rotateY((Math.PI)/2); currentDirection = currentDirection - 1; if(currentDirection<0)currentDirection=3; break;
+								case 1: rotateY(-(Math.PI)); currentDirection = (currentDirection + 2) % 4; break;
+								case 2: rotateY(-(Math.PI)/2); currentDirection = (currentDirection + 1) % 4; break;
+								case 3: break; // already west
+    						}
+    					}
+    					else if(dest_z < cur_z){
+    						//System.out.printf("GO EAST\n");
+    						// go east
+    						switch(currentDirection){
+								case 0: rotateY(-(Math.PI)/2); currentDirection = (currentDirection + 1) % 4; break;
+								case 1: break; // already east
+								case 2: rotateY((Math.PI)/2); currentDirection = currentDirection - 1; if(currentDirection<0)currentDirection=3; break;
+								case 3: rotateY(-(Math.PI)); currentDirection = (currentDirection + 2) % 4; break;
+    						}
+    					}
+    					moveuntil = this.getCounter() + 39;
+    					this.setStatus("forward");
+    				}
+    			}
+    		}
+    		else{
+    			//moveToNextPosition();
+    		}
+    	}else{
+    		Point3d loc = new Point3d();
+            this.getCoords(loc);  
+    		System.out.printf("Not found: %f ~ %f ... (%f ~ %f)\n", currentPosition.getX(), currentPosition.getZ(), loc.getX(), loc.getZ());
+    		
+    	}
+    	
+    	
     	
     	if(this.getCounter() % 20 == 0 ){
     		Point3d loc = new Point3d();
@@ -195,6 +288,6 @@ public class CameraRover extends Rover {
 	}
 	
 	void takePicture(){
-		System.out.printf("[%d] Picture taken!\n", this.getCounter());
+		//System.out.printf("[%d] Picture taken!\n", this.getCounter());
 	}
 };

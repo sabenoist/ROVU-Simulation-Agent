@@ -28,6 +28,12 @@ public class Main {
         
         CameraRover cr1 = new CameraRover(cs.getInitPositions()[0], "Camera Rover 1", cs, 0);
         environment.add(cr1);
+        CameraRover cr2 = new CameraRover(cs.getInitPositions()[1], "Camera Rover 2", cs, 0);
+        environment.add(cr2);
+        CameraRover cr3 = new CameraRover(cs.getInitPositions()[2], "Camera Rover 3", cs, 2);
+        environment.add(cr3);
+        CameraRover cr4 = new CameraRover(cs.getInitPositions()[3], "Camera Rover 4", cs, 2);
+        environment.add(cr4);
         
         /*ScoutingRover sr1 = new ScoutingRover(cs.getInitPositions()[0], "Scouting Rover 1", cs, 0);
         environment.add(sr1);
