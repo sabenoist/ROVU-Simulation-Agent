@@ -83,9 +83,21 @@ public class ScoutingRover extends Rover {
 			return;
 		}
     	
-    	if(this.getCounter() > 120){
+    	if(this.getCounter() > 2400){
     		CentralStation cs = (CentralStation)this.getSubject();
     		cs.finishScouting();
+    		this.setTranslationalVelocity(0);
+    		this.setStatus("stopped");
+    		running = false;
+    		
+    		int zoneSize = this.getZone().getZoneGrid().length;
+    		switch(this.getZone().getID() % 4){
+    			case 0: this.moveToPosition(new Vector3d(-zoneSize-2, 0, -zoneSize-2));
+    			case 1: this.moveToPosition(new Vector3d(-zoneSize-2, 0, -zoneSize-1));
+    			case 2: this.moveToPosition(new Vector3d(-zoneSize-1, 0, -zoneSize-2));
+    			case 3: this.moveToPosition(new Vector3d(-zoneSize-1, 0, -zoneSize-1));
+    		}
+    		
     		return;
     	}
     	
@@ -313,12 +325,6 @@ public class ScoutingRover extends Rover {
     
 	@Override
 	public void update() {
-		if(this.getSubject().getState() == 1){
-			this.setTranslationalVelocity(0);
-			this.setStatus("stopped");
-			running = false;
-			this.moveToStartPosition();
-		}
 		
 	}
 };

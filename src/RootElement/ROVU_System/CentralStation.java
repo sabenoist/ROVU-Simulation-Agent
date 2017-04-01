@@ -47,8 +47,8 @@ public class CentralStation extends Subject {
 		
 		
 		environment.addBox(-3.5, 0.5);
-		//environment.addBox(-2.5, -3.5);
-		//environment.addBox(2.5, 1.5);
+		environment.addBox(-2.5, -3.5);
+		environment.addBox(2.5, 1.5);
 		environment.addBox(-2.5, 3.5);
 	}
 	
@@ -56,7 +56,7 @@ public class CentralStation extends Subject {
 		genGrid();
 		genZones();
 		for(int i = 0; i < this.observers.size(); i++ ){
-			assignZone((Rover)this.observers.get(i), i);
+			assignZone((Rover)this.observers.get(i), i % 4);
 		}
 		//assignZone((Rover)this.observers.get(0), 2);
 		//assignZone((Rover)this.observers.get(1), 1);
@@ -179,8 +179,8 @@ public class CentralStation extends Subject {
 	public double getProgress(){
 		return progress;
 	}
-	public void updateProgess(double p){
-		progress = p;
+	public void updateProgressPlusOne(){
+		progress++;
 	}
 	
 	public Environment getEnvironment(){
@@ -201,7 +201,9 @@ public class CentralStation extends Subject {
 	public void updateFinishedRovers(){
 		finishedRovers++;
 		if(finishedRovers == this.observers.size()){
-			System.out.printf("Mission complete. Covered: %.0f%%/100%%\n", progress );
+			
+			double total = environment.getGrid().length * environment.getGrid()[0].length;
+			System.out.printf("Mission complete. Covered: %.0f%%/100%%\n", progress/total*100);
 		}
 	}
 	public void finishScouting(){
