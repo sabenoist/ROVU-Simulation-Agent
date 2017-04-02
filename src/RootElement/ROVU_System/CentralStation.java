@@ -45,11 +45,13 @@ public class CentralStation extends Subject {
 		initPositions[2] = new Vector3d(0.5, 0, 0.5);
 		initPositions[3] = new Vector3d(0.5, 0, -0.5);
 		
+		// zone 0
+		environment.addBox(-4.5, 0.5);
+		environment.addBox(-0.5, 2.5);
 		
-//		environment.addBox(-3.5, 0.5);
-//		environment.addBox(-2.5, -3.5);
-//		environment.addBox(2.5, 1.5);
-//		environment.addBox(-2.5, 3.5);
+		// zone 1
+		environment.addBox(-4.5, -0.5);
+		environment.addBox(-0.5, -2.5);
 	}
 	
 	public void preMissionLaunch(){
@@ -200,10 +202,18 @@ public class CentralStation extends Subject {
 	
 	public void updateFinishedRovers(){
 		finishedRovers++;
-		if(finishedRovers == this.observers.size()){
-			
+		if(finishedRovers == this.observers.size()/2){
 			double total = environment.getGrid().length * environment.getGrid()[0].length;
-			System.out.printf("Mission complete. Covered: %.0f%%/100%%\n", progress/total*100);
+			
+			int obstacles = 0;;
+			for(int i = 0; i < environment.getGrid().length; i++){
+				for(int j = 0; j < environment.getGrid()[0].length; j++){
+					if(environment.getGrid()[i][j].isObstacle())
+						obstacles++;
+				}
+			}
+			
+			System.out.printf("Mission complete. Covered: %.0f%%/100%% --> %d obstacles\n", progress/total*100, obstacles);
 		}
 	}
 	public void finishScouting(){

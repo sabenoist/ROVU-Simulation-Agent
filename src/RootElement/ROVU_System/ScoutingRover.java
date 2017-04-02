@@ -83,7 +83,7 @@ public class ScoutingRover extends Rover {
 			return;
 		}
     	
-    	if(this.getCounter() > 240){
+    	if(this.getCounter() > 120){ // 2400
     		CentralStation cs = (CentralStation)this.getSubject();
     		cs.finishScouting();
     		this.setTranslationalVelocity(0);
@@ -101,24 +101,24 @@ public class ScoutingRover extends Rover {
     		return;
     	}
     	
-    	if(this.getCounter() > 0 && this.getTranslationalVelocity() > 0){
-    		Coordinate oldPos = currentPosition;
-    		switch(currentDirection){
-    		// getvelocity/20 = 0.025
-    		case 0: // north
-    			currentPosition = new Coordinate(oldPos.getX()-0.025, oldPos.getY(), oldPos.getZ());
-    			break;
-    		case 1: // east
-    			currentPosition = new Coordinate(oldPos.getX(), oldPos.getY(), oldPos.getZ()-0.025);
-    			break;
-    		case 2: // south
-    			currentPosition = new Coordinate(oldPos.getX()+0.025, oldPos.getY(), oldPos.getZ());
-    			break;
-    		case 3: // west
-    			currentPosition = new Coordinate(oldPos.getX(), oldPos.getY(), oldPos.getZ()+0.025);
-    			break;
-    		}
-    	}
+    	if (this.getCounter() > 0 && this.getTranslationalVelocity() > 0) {
+			Coordinate oldPos = currentPosition;
+			double distance = this.getTranslationalVelocity() / TICK_RATE;
+			switch (currentDirection) {
+    			case NORTH:
+    				currentPosition = new Coordinate(oldPos.getX()-distance, oldPos.getY(), oldPos.getZ());
+    				break;
+    			case EAST:
+    				currentPosition = new Coordinate(oldPos.getX(), oldPos.getY(), oldPos.getZ()-distance);
+    				break;
+    			case SOUTH:
+    				currentPosition = new Coordinate(oldPos.getX()+distance, oldPos.getY(), oldPos.getZ());
+    				break;
+    			case WEST:
+    				currentPosition = new Coordinate(oldPos.getX(), oldPos.getY(), oldPos.getZ()+distance);
+    				break;
+			}
+		}
     	
     	
     	if(this.getCounter() > 0 && this.getCounter() == turnAgain){
@@ -260,7 +260,8 @@ public class ScoutingRover extends Rover {
 	    	
 	    	if(this.getStatus() == "forward") {
 	    		// the robot's speed is always 0.5 m/s
-	            this.setTranslationalVelocity(0.5);  
+	    		this.setVelocity(0.5);
+	            this.setTranslationalVelocity(this.getVelocity());  
 	        } else {
 	        	// collision detected -> do sth
 	        	Point3d loc = new Point3d();
@@ -318,7 +319,10 @@ public class ScoutingRover extends Rover {
 		this.setTranslationalVelocity(0);
 		rotateY(-(Math.PI)); 
 		currentDirection = (currentDirection + 2) % 4;
-		turnAgain = this.getCounter() + 39;
+		
+		double delay = 20 / this.getVelocity();		
+		turnAgain = (int) (this.getCounter() + delay);
+		
         zonecheck = this.getCounter() + 10;
         this.setStatus("forward");
     }

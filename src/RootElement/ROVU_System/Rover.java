@@ -29,7 +29,7 @@ public abstract class Rover extends Agent implements ObserverInterface{
 	private Zone zone;
 	private Coordinate initialPosition;
 	private int initialDirection;
-	private int velocity;
+	private double velocity;
 	private Subject subject;
 	
 	public Rover(Vector3d initPos, String name) {
@@ -78,10 +78,10 @@ public abstract class Rover extends Agent implements ObserverInterface{
 		initialDirection = i;
 	}
 	
-	public int getVelocity(){
+	public double getVelocity(){
 		return velocity;
 	}
-	public void setVelocity(int v){
+	public void setVelocity(double v){
 		velocity = v;
 	}
 	
