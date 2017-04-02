@@ -4,6 +4,8 @@
 
 package RootElement.ROVU_System;
 
+import javax.vecmath.Vector3d;
+
 import RootElement.ROVU_System.Rover;
 
 /************************************************************/
@@ -16,13 +18,12 @@ public class RoverFactory {
 	private RoverFactory() {
 	}
 
-	public Rover getRover(String s) {
+	public Rover getRover(RoverEnum type, Vector3d initPos, String name, Subject s, int initDirection) {
 		
-		if(s.compareToIgnoreCase("scouting") == 0){
-			// how would this even work with the super() constructor towards Agent requiring initpos...
-			//return new ScoutingRover();
-		}else if(s.compareToIgnoreCase("camera") == 0){
-			//return new CameraRover();
+		if(type == RoverEnum.SCOUTING_ROVER){
+			return new ScoutingRover(initPos, name, s, initDirection);
+		}else if(type == RoverEnum.CAMERA_ROVER){
+			return new CameraRover(initPos, name, s, initDirection);
 		}else{
 			System.out.printf("getRover(): ERROR: rover type not found.\n");
 		}

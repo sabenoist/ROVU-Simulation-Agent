@@ -10,7 +10,6 @@ import javax.vecmath.Color3f;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
-import simbad.sim.Arch;
 import simbad.sim.Box;
 import simbad.sim.EnvironmentDescription;
 import simbad.sim.Wall;
@@ -116,6 +115,7 @@ public class Environment extends EnvironmentDescription {
 		}
 		System.out.printf("\n");
 	}
+	
 	public void utilBoxGrid(Coordinate[][] grid){
 		boolean color = false;
 		for(int i = 0; i < grid.length; i++){

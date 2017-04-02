@@ -6,7 +6,6 @@ package RootElement.ROVU_System;
 
 import java.util.Random;
 
-import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import RootElement.ROVU_System.Rover;
@@ -189,7 +188,6 @@ public class ScoutingRover extends Rover {
             proxcheck = this.getCounter() + 10;
 		}
     	
-    	// perform the following actions every 5 virtual seconds
     	if(this.getCounter() % 5 == 0) {
     		this.setStatus("forward");
     		this.setVelocity(0.5);

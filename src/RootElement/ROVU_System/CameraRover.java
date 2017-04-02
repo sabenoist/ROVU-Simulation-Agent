@@ -4,7 +4,6 @@
 
 package RootElement.ROVU_System;
 
-import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import RootElement.ROVU_System.Rover;
@@ -18,8 +17,6 @@ import simbad.sim.RobotFactory;
 public class CameraRover extends Rover {
 
 	boolean running = true;
-	int proxcheck = 0;
-	int zonecheck = 0;
 	int currentDirection;
 	RangeSensorBelt sonar;
 	int lastPicture = 0;
@@ -69,8 +66,6 @@ public class CameraRover extends Rover {
         	default: break;
         }   
         zoneGrid = this.getZone().getZoneGrid();
-        zonecheck = 0;
-        proxcheck = 0;        
         movesLeft = 0;
         movescheck = 0;
         currentMove = 0;

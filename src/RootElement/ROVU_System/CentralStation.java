@@ -4,8 +4,6 @@
 
 package RootElement.ROVU_System;
 
-import java.awt.Color;
-
 import javax.vecmath.Vector3d;
 
 import RootElement.ROVU_System.Coordinate;
@@ -13,7 +11,6 @@ import RootElement.ROVU_System.Environment;
 import RootElement.ROVU_System.Rover;
 import RootElement.ROVU_System.RoverFactory;
 import RootElement.ROVU_System.Subject;
-import RootElement.ROVU_System.TaskFactory;
 import RootElement.ROVU_System.Zone;
 
 /************************************************************/
@@ -25,25 +22,26 @@ public class CentralStation extends Subject {
 	private String mission;
 	private double progress;
 	private Environment environment;
-	private TaskFactory taskFactory;
 	private RoverFactory roverFactory;
 	private Vector3d[] initPositions;
 	private int finishedRovers;
-	private static RootElement.ROVU_System.CentralStation instance = new CentralStation();
+	private static CentralStation instance = new CentralStation();
 
 	private CentralStation() {
-		taskFactory = TaskFactory.getInstance();
 		roverFactory = RoverFactory.getInstance();
+		finishedRovers = 0;
 	}
 	
 	public void preRoverLaunch(){
-		finishedRovers = 0;
-		initPositions = new Vector3d[4];
-	
+		initPositions = new Vector3d[8];
 		initPositions[0] = new Vector3d(-0.5, 0, 0.5);
 		initPositions[1] = new Vector3d(-0.5, 0, -0.5);
 		initPositions[2] = new Vector3d(0.5, 0, 0.5);
 		initPositions[3] = new Vector3d(0.5, 0, -0.5);
+		initPositions[4] = new Vector3d(environment.worldSize/2+2, 0, environment.worldSize/2+2);
+		initPositions[5] = new Vector3d(environment.worldSize/2+1, 0, environment.worldSize/2+2);
+		initPositions[6] = new Vector3d(environment.worldSize/2+2, 0, environment.worldSize/2+1);
+		initPositions[7] = new Vector3d(environment.worldSize/2+1, 0, environment.worldSize/2+1);
 		
 		/** add obstacles **/
 		// zone 0
@@ -120,10 +118,6 @@ public class CentralStation extends Subject {
 		return r.getZone();
 	}
 
-	public boolean isObstacle(Coordinate c) {
-		return c.isObstacle();
-	}
-
 	public void storeResults() {
 		// store results
 	}
@@ -157,10 +151,6 @@ public class CentralStation extends Subject {
 	}
 	public void setEnvironment(Environment env){
 		environment = env;
-	}
-	
-	public TaskFactory getTaskFactory(){
-		return taskFactory;
 	}
 	
 	public RoverFactory getRoverFactory(){
