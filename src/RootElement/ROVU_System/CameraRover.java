@@ -4,8 +4,6 @@
 
 package RootElement.ROVU_System;
 
-import java.util.Random;
-
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
@@ -19,7 +17,6 @@ import simbad.sim.RobotFactory;
  */
 public class CameraRover extends Rover {
 
-	int proximity;
 	boolean running = true;
 	int proxcheck = 0;
 	int zonecheck = 0;
@@ -31,20 +28,21 @@ public class CameraRover extends Rover {
 	int start = 0;
 	boolean started = false;
 	
-	//	camera rover stuff
+	// zone traversal
 	Coordinate[][] zoneGrid;
 	int grid_i = 0;
 	int grid_j = 0;
 	boolean traverseUp = true;
 	Coordinate lastCoord;
 	
+	// obstacle avoidance
 	Coordinate[] avoidMoves;
 	int currentMove;
 	int movesLeft;
 	int movescheck;
 	boolean obstacleDelay = false;
 	
-	// gps req
+	// no GPS requirement
 	Coordinate currentPosition;
 	
 	public CameraRover(Vector3d position, String name, Subject s, int initdir) {
@@ -56,41 +54,29 @@ public class CameraRover extends Rover {
 		this.setInitialDirection(initdir);
 		this.setType(RoverEnum.CAMERA_ROVER);
 		sonar = RobotFactory.addSonarBeltSensor(this, 4);
-		// gps req 
+		// no GPS requirement
 		currentPosition = new Coordinate(position.x, 0.3, position.z);
 		lastCoord = new Coordinate(position.x, 0.3, position.z);
 		avoidMoves = new Coordinate[10];
 	}
-	/*public int getProximity(){
-		return proximity;
-	}*/
-	public void setProximity(int p){
-		proximity = p;
-	}
-	
-	public void genRandomDirection(int direction) {
-	}
-
-	public void startScouting() {
-	}
 
 	/** This method is called by the simulator engine on reset. */
     public void initBehavior() {
-        System.out.printf("I exist and my name is %s\n", this.getName());
+        System.out.printf("Initial behavior of %s is executed\n", this.getName());
         switch(this.getInitialDirection()) {
-        	case 0: rotateY(-Math.PI); currentDirection = 0; break; // north
-        	case 2: currentDirection = 2; break; // south (default)
+        	case NORTH: rotateY(-Math.PI); currentDirection = NORTH; break;
+        	case SOUTH: currentDirection = SOUTH; break;
         	default: break;
         }   
-       // camera rover stuff
         zoneGrid = this.getZone().getZoneGrid();
         zonecheck = 0;
-        proxcheck = 0;     
-        
+        proxcheck = 0;        
         movesLeft = 0;
         movescheck = 0;
         currentMove = 0;
         
+        // obstacle cheating :^)
+        /** 
         if(this.getZone().getID() % 4 == 0){
         	Coordinate c1 = this.getZone().getZoneCoord(-4.5, 0.5);
         	Coordinate c2 = this.getZone().getZoneCoord(-0.5, 2.5);
@@ -103,7 +89,7 @@ public class CameraRover extends Rover {
         	c1.setObstacle(true);
         	c2.setObstacle(true);
         }
-        
+        **/
     }
     
     /** This method is call cyclically (20 times per second) by the simulator engine. */
@@ -114,14 +100,13 @@ public class CameraRover extends Rover {
     		start = this.getCounter();
     	}
     	else if(this.getSubject().getState() == 1 && this.getCounter() > start + 40 && !started){
-    		System.out.printf("Hit em with it!\n");
-    		switch(this.getZone().getID() % 4){
+    		switch(this.getZone().getID()){
     		case 0: {
     			this.moveToPosition(new Vector3d(-0.5, 0, 0.5));
     			currentPosition = new Coordinate(-0.5, 0.5);
     			switch(this.getInitialDirection()) {
-            	case 0: rotateY(-Math.PI); currentDirection = 0; break; // north
-            	case 2: currentDirection = 2; break; // south (default)
+            	case NORTH: rotateY(-Math.PI); currentDirection = NORTH; break;
+            	case SOUTH: currentDirection = SOUTH; break;
             	default: break;
     			}  
     			running = true;
@@ -132,8 +117,8 @@ public class CameraRover extends Rover {
     			this.moveToPosition(new Vector3d(-0.5, 0, -0.5));
     			currentPosition = new Coordinate(-0.5, -0.5);
     			switch(this.getInitialDirection()) {
-            	case 0: rotateY(-Math.PI); currentDirection = 0; break; // north
-            	case 2: currentDirection = 2; break; // south (default)
+            	case NORTH: rotateY(-Math.PI); currentDirection = NORTH; break;
+            	case SOUTH: currentDirection = SOUTH; break;
             	default: break;
     			}
     			running = true;
@@ -144,8 +129,8 @@ public class CameraRover extends Rover {
     			this.moveToPosition(new Vector3d(0.5, 0, 0.5));
     			currentPosition = new Coordinate(0.5, 0.5);
     			switch(this.getInitialDirection()) {
-            	case 0: rotateY(-Math.PI); currentDirection = 0; break; // north
-            	case 2: currentDirection = 2; break; // south (default)
+            	case NORTH: rotateY(-Math.PI); currentDirection = NORTH; break;
+            	case SOUTH: currentDirection = SOUTH; break;
             	default: break;
     			}
     			running = true;
@@ -156,8 +141,8 @@ public class CameraRover extends Rover {
     			this.moveToPosition(new Vector3d(0.5, 0, -0.5));
     			currentPosition = new Coordinate(0.5, -0.5);
     			switch(this.getInitialDirection()) {
-            	case 0: rotateY(-Math.PI); currentDirection = 0; break; // north
-            	case 2: currentDirection = 2; break; // south (default)
+            	case NORTH: rotateY(-Math.PI); currentDirection = NORTH; break;
+            	case SOUTH: currentDirection = SOUTH; break;
             	default: break;
     			}
     			running = true;
@@ -165,17 +150,6 @@ public class CameraRover extends Rover {
     			break;
     		}
     		}
-        	//if(this.getCounter() % 100 == 0){
-    			System.out.printf("Grid (%d): ", this.getZone().getID());
-    			for(int i = 0; i < this.getZone().getZoneGrid().length; i++){
-    				for(int j = 0; j < this.getZone().getZoneGrid().length; j++){
-    					if(this.getZone().getZoneGrid()[i][j].isObstacle()){
-    						System.out.printf("[%.1f][%.1f] ", this.getZone().getZoneGrid()[i][j].getX(), this.getZone().getZoneGrid()[i][j].getZ());
-    					}
-    				}
-    			}
-    			System.out.printf("\n");
-        	//}
     	}
     	
     	if(!running){
@@ -205,112 +179,94 @@ public class CameraRover extends Rover {
 			if(movesLeft == 1){
 				movesLeft--;
 				obstacleDelay = true;
-				//moveuntil += 4;
 			}
-			else{
-			System.out.printf("(%d) Move from [%f][%f] to [%f][%f]\n", movesLeft, currentPosition.getX(), currentPosition.getZ(), avoidMoves[currentMove].getX(), avoidMoves[currentMove].getZ());
+			else{			
+				// round numbers
+				double cur_x = currentPosition.getX()*100;
+				double cur_z = currentPosition.getZ()*100;
+				double dest_x = avoidMoves[currentMove].getX() * 100;
+				double dest_z = avoidMoves[currentMove].getZ() * 100;
+				cur_x = Math.round(cur_x);
+				cur_x /= 100;
+				cur_z = Math.round(cur_z);
+				cur_z /= 100;
+				dest_x = Math.round(dest_x);
+				dest_x /= 100;
+				dest_z = Math.round(dest_z);
+				dest_z /= 100;
 			
-			double cur_x = currentPosition.getX()*100;
-    		double cur_z = currentPosition.getZ()*100;
-    		cur_x = Math.round(cur_x);
-    		cur_x /= 100;
-    		cur_z = Math.round(cur_z);
-    		cur_z /= 100;
-    		
-    		double dest_x = avoidMoves[currentMove].getX() * 100;
-    		dest_x = Math.round(dest_x);
-    		dest_x /= 100;
-    		double dest_z = avoidMoves[currentMove].getZ() * 100;
-    		dest_z = Math.round(dest_z);
-    		dest_z /= 100;
-			
-			moveFromTo(cur_x, cur_z, dest_x, dest_z, false);
-			moveuntil += 4;
-			currentMove++;
-			movesLeft--;
-			System.out.printf("Move sent, moves left: %d\n", movesLeft);
-			//return;
+				moveFromTo(cur_x, cur_z, dest_x, dest_z, false);
+				moveuntil += 4;
+				currentMove++;
+				movesLeft--;
 			}
 		}
-		
 		
     	if( this.getCounter() <= moveuntil ){
     		this.setStatus("forward");
     	}
     	else{
-    		this.setStatus("transitioning to taking pictures idk");
+    		this.setStatus("taking picture preparation");
     		this.setTranslationalVelocity(0);
-    		
+    		// round numbers
     		double x = currentPosition.getX()*100;
     		double z = currentPosition.getZ()*100;
     		x = Math.round(x);
     		z = Math.round(z);
     		x /= 100;
     		z /= 100;
-    		
     		lastCoord = new Coordinate(x, z);
     		movescheck = this.getCounter() + 1;
-    		//System.out.printf("trying to find: %f - %f\n", this.zoneGrid[1][0].getX(), this.zoneGrid[1][0].getZ());
     	}
     	
-    	if(movesLeft == 0 ){
+    	if(movesLeft == 0){
     	Coordinate zoneCoord = this.getZone().getZoneCoord(lastCoord.getX(), lastCoord.getZ());
     	if( zoneCoord != null ){
     		if(!zoneCoord.isCovered()){
     			this.setTranslationalVelocity(0);
-    			this.setStatus("TakingPictures");
+    			this.setStatus("taking pictures");
     			if(this.getCounter() >= lastPicture){
     				takePicture();
     				rotateY(-(Math.PI / 2));
     				currentDirection = (currentDirection + 1) % 4;
     				lastPicture = this.getCounter() + 5;
     				picturesTaken++;
-    				
     				if(picturesTaken == 4){
     					zoneCoord.setCovered(true);
     					picturesTaken = 0;
-    					
 						CentralStation cs = (CentralStation)this.getSubject();
 						cs.updateProgressPlusOne();
-    					
     					if(grid_i == zoneGrid.length-1 && grid_j == zoneGrid.length-1){
-    						System.out.printf("DONE!\n");
+    						System.out.printf("%s has finished!\n", this.getName());
     						this.setStatus("finished");		
     						cs.updateFinishedRovers();
     						running = false;
     						return;
     					}
-    					
-    					traverseNextPoint();
-    			    	
+    					traverseNextPoint();    			    	
     					Coordinate nextDest = zoneGrid[grid_i][grid_j];
-    					//if(this.getZone().getID() % 4 == 0)
-    					//System.out.printf("Dest: [%d][%d]: %f ~ %f   ... current: %f ~ %f\n", grid_i, grid_j, nextDest.getX(), nextDest.getZ(), currentPosition.getX(), currentPosition.getZ());
-    					
-    					// afronden
+
+    					// round numbers
     					double cur_x = currentPosition.getX()*100;
     		    		double cur_z = currentPosition.getZ()*100;
+    		    		double dest_x = nextDest.getX()*100;
+    		    		double dest_z = nextDest.getZ()*100;
     		    		cur_x = Math.round(cur_x);
     		    		cur_x /= 100;
     		    		cur_z = Math.round(cur_z);
     		    		cur_z /= 100;
-    		    		
-    		    		double dest_x = nextDest.getX() * 100;
     		    		dest_x = Math.round(dest_x);
     		    		dest_x /= 100;
-    		    		double dest_z = nextDest.getZ() * 100;
     		    		dest_z = Math.round(dest_z);
     		    		dest_z /= 100;
-    		    		//System.out.printf("dest: %f~%f ... cur: %f~%f\n", dest_x, dest_z, cur_x, cur_z);
     					
     		    		boolean nextIsObstacle = nextDest.isObstacle();
-    		    		if(nextIsObstacle){
-    		    			System.out.printf("Watch out, [%.1f][%.1f] is an obstacle!\n", dest_x, dest_z);
-    		    			
+    		    		if(nextIsObstacle){    		    			
     		    			traverseNextPoint();
     		    			Coordinate nextSkipObstacle = zoneGrid[grid_i][grid_j];
-    		    			// check if this is an obstacle too... 
-    		    			System.out.printf("You need to go to [%.1f][%.1f]!\n", nextSkipObstacle.getX(), nextSkipObstacle.getZ());
+    		    			// two obstacles in a row not supported..
+    		    			
+    		    			// round numbers
     		    			double new_x = nextSkipObstacle.getX() * 100;
     		    			new_x = Math.round(new_x);
     		    			new_x /= 100;
@@ -319,37 +275,28 @@ public class CameraRover extends Rover {
         		    		new_z /= 100;
         		    		
         		    		double north = 0, east = 0, south = 0, west = 0;
-    		    			
-        		    		if(new_x > cur_x){ // the new destination is south of current
-        		    			System.out.printf("New destination is: %f to the south\n", new_x-cur_x);
+        		    		if(new_x > cur_x){ // the new destination is south of current        		    			//System.out.printf("New destination is: %f to the south\n", new_x-cur_x);
         		    			south = new_x-cur_x;
         		    		}
         		    		else if(new_x < cur_x){ // the new destination is north of current
-        		    			System.out.printf("New destination is: %f to the north\n", cur_x-new_x);
         		    			north = cur_x-new_x;
         		    		}
-        		    		
         		    		if(new_z > cur_z){ // the new destination is west of current
-        		    			System.out.printf("New destination is: %f to the west\n", new_z-cur_z);
         		    			west = new_z-cur_z;
         		    		}
         		    		else if(new_z < cur_z){ // the new destination is east of current
-        		    			System.out.printf("New destination is: %f to the east\n", cur_z-new_z);
         		    			east = cur_z-new_z;
         		    		}
-        		    		
+        		    		// rotate to the right direction
         		    		moveFromTo(cur_x, cur_z, dest_x, dest_z, true);
-        		    		
         		    		if(north > 0){
         		    			if(west == 0 && east == 0){
         		    				Coordinate toLeft = this.getZone().getZoneCoord(cur_x, cur_z+1);
-        		    				if( toLeft != null ){
-        		    					//System.out.printf("The left is free!\n");
+        		    				if( toLeft != null && !toLeft.isObstacle()){
         		    					currentMove = 0;
         		    					// go left
         		    					avoidMoves[currentMove] = new Coordinate(cur_x, cur_z+1);
         		    					currentMove++;
-        		    					
         		    					// go up for *north
         		    					for(int i = 1; i <= (int)north; i++){
         		    						avoidMoves[currentMove] = new Coordinate(cur_x-i, cur_z+1);
@@ -363,13 +310,11 @@ public class CameraRover extends Rover {
         		    				}
         		    				else{
         		    					Coordinate toRight = this.getZone().getZoneCoord(cur_x, cur_z-1);
-        		    					if( toRight != null ){
-        		    						//System.out.printf("The right is free!\n");
+        		    					if( toRight != null && !toRight.isObstacle()){
             		    					currentMove = 0;
             		    					// go right
             		    					avoidMoves[currentMove] = new Coordinate(cur_x, cur_z-1);
             		    					currentMove++;
-            		    					
             		    					// go up for *north
             		    					for(int i = 1; i <= (int)north; i++){
             		    						avoidMoves[currentMove] = new Coordinate(cur_x-i, cur_z-1);
@@ -442,15 +387,12 @@ public class CameraRover extends Rover {
         		    			
         		    		}else if( south > 0){
         		    			if(west == 0 && east == 0){        		    				
-       		    					//System.out.printf("(%d) target is south, current direction is south\n", this.getZone().getID());
        		    					Coordinate toLeft = this.getZone().getZoneCoord(cur_x, cur_z-1);
-       		    					if( toLeft != null ){
-       		    						System.out.printf("The left is free!\n");
+       		    					if( toLeft != null && !toLeft.isObstacle()){
        		    						currentMove = 0;
        		    						// go left
        		    						avoidMoves[currentMove] = new Coordinate(cur_x, cur_z-1);
        		    						currentMove++;
-        		    						
        		    						// go down for *south
        		    						for(int i = 1; i <= (int)south; i++){
        		    							avoidMoves[currentMove] = new Coordinate(cur_x+i, cur_z-1);
@@ -464,12 +406,11 @@ public class CameraRover extends Rover {
         		    				}
         		    				else{
         		    					Coordinate toRight = this.getZone().getZoneCoord(cur_x, cur_z+1);
-        		    					if( toRight != null ){
+        		    					if( toRight != null && !toRight.isObstacle()){
         		    						currentMove = 0;
            		    						// go right
            		    						avoidMoves[currentMove] = new Coordinate(cur_x, cur_z+1);
            		    						currentMove++;
-            		    						
            		    						// go down for *south
            		    						for(int i = 1; i <= (int)south; i++){
            		    							avoidMoves[currentMove] = new Coordinate(cur_x+i, cur_z+1);
@@ -538,13 +479,12 @@ public class CameraRover extends Rover {
         		    				}
         		    			}
         		    		}
-        		    		
-    		    			this.setStatus("waiting for obstacle avoid?");
+    		    			this.setStatus("avoid obstacle");
     		    		}
     		    		else{
     		    			moveFromTo(cur_x, cur_z, dest_x, dest_z, false);
     		    			if(obstacleDelay){
-//    		    				System.out.printf("just avoided obstacle, add +4\n");
+    		    				// movement after avoiding an obstacle is delayed by 4
     		    				moveuntil += 4;
     		    				obstacleDelay = false;
     		    			}
@@ -552,106 +492,53 @@ public class CameraRover extends Rover {
     				}
     			}
     		}
-    		else{
-    			//moveToNextPosition();
-    		}
-    	}else{
-    		Point3d loc = new Point3d();
-            this.getCoords(loc);  
-    		System.out.printf("Not found: %f ~ %f ... (%f ~ %f)\n", currentPosition.getX(), currentPosition.getZ(), loc.getX(), loc.getZ());
-    		
     	}
     	}
-    	
-    	if(this.getCounter() % 20 == 0 ){
-    		Point3d loc = new Point3d();
-            this.getCoords(loc);            
-    		//System.out.printf("(%s) GPS position: [%.1f - %.1f - %.1f]\n", this.getName(), loc.getX(), loc.getY(), loc.getZ());
-    		//System.out.printf("(%s) New position: [%.1f - %.1f - %.1f]\n", this.getName(), currentPosition.getX(), currentPosition.getY(), currentPosition.getZ());
-    	}
-    	
-    	// perform the following actions every 5 virtual seconds
+    	    	
     	if(this.getCounter() % 5 == 0) {
-    		/* camera rover stuff
-    		Point3d loc = new Point3d();
-            this.getCoords(loc);
-            System.out.printf("Looking for x: %f\n", zoneGrid[grid_i][grid_j].getX());
-            if(loc.getX() <= zoneGrid[grid_i][grid_j].getX())
-            {
-            	System.out.printf("Caught at: %f\n", loc.getX());
-    			this.setTranslationalVelocity(0);
-    			grid_i++;
-    			running = false;
-    			count = this.getCounter() + 100;
-            	return;
-            }
-            */
-    		//System.out.printf("Proximity: %f\n", sonar.getMeasurement(0));
-	    	if(this.collisionDetected()) {
-	    		this.setStatus("avoidObstacle");
-	    	}
-	        
 	    	if(this.getStatus() == "forward") {
-	    		//System.out.printf("moving bih\n");
-	            this.setTranslationalVelocity(0.5);  
-	        } else if (this.getStatus() == "avoidObstacle"){
-//	        	Point3d loc = new Point3d();
-//	            this.getCoords(loc);
-//	            System.out.printf("CollDet: [X(%.1f) Y(%.1f) Z(%.1f)]\n", loc.getX(), loc.getY(), loc.getZ());
+	    		this.setVelocity(0.5);
+	            this.setTranslationalVelocity(this.getVelocity());  
 	        }
     	}
-    	
     }
     
     void moveFromTo(double cur_x, double cur_z, double dest_x, double dest_z, boolean onlyRotate){
     	if(dest_x > cur_x){
-//    		if(this.getZone().getID() % 4 == 1)
-//			System.out.printf("GO SOUTH\n");
-			// go south
 			switch(currentDirection){
-				case 0: rotateY(-(Math.PI)); currentDirection = (currentDirection + 2) % 4; break;
-				case 1: rotateY(-(Math.PI)/2); currentDirection = (currentDirection + 1) % 4; break;
-				case 2: break; // already south
-				case 3: rotateY((Math.PI)/2); currentDirection = currentDirection - 1; if(currentDirection<0)currentDirection=3; break;
+				case NORTH: rotateY(-(Math.PI)); currentDirection = (currentDirection + 2) % 4; break;
+				case EAST: rotateY(-(Math.PI)/2); currentDirection = (currentDirection + 1) % 4; break;
+				case SOUTH: break; // already south
+				case WEST: rotateY((Math.PI)/2); currentDirection = (currentDirection + 3) % 4; break;
 			}
 		}
 		else if(dest_x < cur_x){
-//			if(this.getZone().getID() % 4 == 1)
-//			System.out.printf("GO NORTH\n");
-			// go north
 			switch(currentDirection){
-				case 0: break; // already north
-				case 1: rotateY((Math.PI)/2); currentDirection = currentDirection - 1; if(currentDirection<0)currentDirection=3; break;
-				case 2: rotateY(-(Math.PI)); currentDirection = (currentDirection + 2) % 4; break;
-				case 3: rotateY(-(Math.PI)/2); currentDirection = (currentDirection + 1) % 4; break;
+				case NORTH: break; // already north
+				case EAST: rotateY((Math.PI)/2); currentDirection = (currentDirection + 3) % 4; break;
+				case SOUTH: rotateY(-(Math.PI)); currentDirection = (currentDirection + 2) % 4; break;
+				case WEST: rotateY(-(Math.PI)/2); currentDirection = (currentDirection + 1) % 4; break;
 			}
-			//System.out.printf("My new direction is: %d\n", currentDirection);
 		}
 		else if(dest_z > cur_z){
-//			if(this.getZone().getID() % 4 == 1)
-//			System.out.printf("GO WEST\n");
-			// go west
 			switch(currentDirection){
-				case 0: rotateY((Math.PI)/2); currentDirection = currentDirection - 1; if(currentDirection<0)currentDirection=3; break;
-				case 1: rotateY(-(Math.PI)); currentDirection = (currentDirection + 2) % 4; break;
-				case 2: rotateY(-(Math.PI)/2); currentDirection = (currentDirection + 1) % 4; break;
-				case 3: break; // already west
+				case NORTH: rotateY((Math.PI)/2); currentDirection = (currentDirection + 3) % 4; break;
+				case EAST: rotateY(-(Math.PI)); currentDirection = (currentDirection + 2) % 4; break;
+				case SOUTH: rotateY(-(Math.PI)/2); currentDirection = (currentDirection + 1) % 4; break;
+				case WEST: break; // already west
 			}
 		}
 		else if(dest_z < cur_z){
-//			if(this.getZone().getID() % 4 == 1)
-//			System.out.printf("GO EAST\n");
-			// go east
 			switch(currentDirection){
-				case 0: rotateY(-(Math.PI)/2); currentDirection = (currentDirection + 1) % 4; break;
-				case 1: break; // already east
-				case 2: rotateY((Math.PI)/2); currentDirection = currentDirection - 1; if(currentDirection<0)currentDirection=3; break;
-				case 3: rotateY(-(Math.PI)); currentDirection = (currentDirection + 2) % 4; break;
+				case NORTH: rotateY(-(Math.PI)/2); currentDirection = (currentDirection + 1) % 4; break;
+				case EAST: break; // already east
+				case SOUTH: rotateY((Math.PI)/2); currentDirection = (currentDirection + 3) % 4; break;
+				case WEST: rotateY(-(Math.PI)); currentDirection = (currentDirection + 2) % 4; break;
 			}
 		}
-    	if( !onlyRotate ){
+    	if(!onlyRotate){
     		moveuntil = this.getCounter() + 39;
-			// initial movement is delayed by spawning by 4 seconds
+			// initial movement is delayed by 4
 			if(grid_i == 1 && grid_j == 0){
 				moveuntil += 4;
 			}
@@ -679,10 +566,10 @@ public class CameraRover extends Rover {
     
 	@Override
 	public void update() {
-		//System.out.printf("i updated lol\n");
+		// update
 	}
 	
 	void takePicture(){
-		//System.out.printf("[%d] Picture taken!\n", this.getCounter());
+		// take picture
 	}
 };
