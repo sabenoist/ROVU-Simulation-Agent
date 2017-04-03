@@ -43,14 +43,6 @@ public class CentralStation extends Subject {
 		initPositions[6] = new Vector3d(environment.worldSize/2+2, 0, environment.worldSize/2+1);
 		initPositions[7] = new Vector3d(environment.worldSize/2+1, 0, environment.worldSize/2+1);
 		
-		/** add obstacles **/
-		// zone 0
-		environment.addBox(-4.5, 0.5);
-		environment.addBox(-0.5, 2.5);
-		
-		// zone 1
-		environment.addBox(-4.5, -0.5);
-		environment.addBox(-0.5, -2.5);
 	}
 	
 	public void preMissionLaunch(){
@@ -59,6 +51,15 @@ public class CentralStation extends Subject {
 		for(int i = 0; i < this.observers.size(); i++ ){
 			assignZone((Rover)this.observers.get(i), i % 4);
 		}
+		
+		/** add obstacles **/
+		// zone 0
+		environment.addBox(-4.5, 0.5);
+		environment.addBox(-0.5, 2.5);
+		
+		// zone 1
+		environment.addBox(-4.5, -0.5);
+		environment.addBox(-0.5, -2.5);
 	}
 
 	public Vector3d[] getInitPositions() {
@@ -139,6 +140,10 @@ public class CentralStation extends Subject {
 		mission = s;
 	}
 	
+	public boolean isObstacle(Coordinate c){
+		return c.isObstacle();
+	}
+	
 	public double getProgress(){
 		return progress;
 	}
@@ -160,6 +165,7 @@ public class CentralStation extends Subject {
 	public void updateFinishedRovers(){
 		finishedRovers++;
 		if(finishedRovers == this.observers.size()/2){
+			this.setState(2);
 			double total = environment.getGrid().length * environment.getGrid()[0].length;
 			
 			int obstacles = 0;

@@ -146,6 +146,9 @@ public class CameraRover extends Rover {
     		}
     		}
     	}
+    	else if( this.getSubject().getState() == 2){
+    		running = false;
+    	}
     	
     	if(!running){
 			return;
@@ -231,9 +234,10 @@ public class CameraRover extends Rover {
     					picturesTaken = 0;
 						CentralStation cs = (CentralStation)this.getSubject();
 						cs.updateProgressPlusOne();
+						
     					if(grid_i == zoneGrid.length-1 && grid_j == zoneGrid.length-1){
     						System.out.printf("%s has finished!\n", this.getName());
-    						this.setStatus("finished");		
+    						this.setStatus("finished");	
     						cs.updateFinishedRovers();
     						running = false;
     						return;
