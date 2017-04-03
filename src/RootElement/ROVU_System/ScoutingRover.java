@@ -65,7 +65,7 @@ public class ScoutingRover extends Rover {
 		}
     	
     	// time limit for scouting
-    	if(this.getCounter() > 2400){ // 2400
+    	if(this.getCounter() > 120){ // 2400
     		CentralStation cs = (CentralStation)this.getSubject();
     		cs.finishScouting();
     		this.setTranslationalVelocity(0);
@@ -245,9 +245,12 @@ public class ScoutingRover extends Rover {
 		currentDirection = (currentDirection + 2) % 4;
 		double delay = 20 / this.getVelocity();
 		Random r = new Random();
-    	int rand = r.nextInt(2);
+    	int rand = r.nextInt(3);
     	if (rand == 0 ){
     		delay *= 2;
+    	}
+    	if( rand == 1){
+    		delay = 1;
     	}
 		turnAgain = (int) (this.getCounter() + delay);
         zonecheck = this.getCounter() + 10;

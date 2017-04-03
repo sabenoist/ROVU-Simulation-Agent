@@ -71,13 +71,27 @@ public class CameraRover extends Rover {
         currentMove = 0;
         
         // obstacle cheating :^)
-        /** 
+         
         if(this.getZone().getID() % 4 == 0){
-        	Coordinate c1 = this.getZone().getZoneCoord(-4.5, 0.5);
-        	Coordinate c2 = this.getZone().getZoneCoord(-0.5, 2.5);
+        	Coordinate c1 = this.getZone().getZoneCoord(-1.5, 1.5);
+        	Coordinate c2 = this.getZone().getZoneCoord(-2.5, 1.5);
+        	Coordinate c3 = this.getZone().getZoneCoord(-3.5, 1.5);
+        	Coordinate c4 = this.getZone().getZoneCoord(-4.5, 1.5);
+//        	Coordinate c5 = this.getZone().getZoneCoord(-4.5, 1.5);
+//        	Coordinate c6 = this.getZone().getZoneCoord(-4.5, 2.5);
+//        	Coordinate c7 = this.getZone().getZoneCoord(-4.5, 3.5);
+//        	Coordinate c8 = this.getZone().getZoneCoord(-4.5, 4.5);
+        	
         	c1.setObstacle(true);
         	c2.setObstacle(true);
+        	c3.setObstacle(true);
+        	c4.setObstacle(true);
+//        	c5.setObstacle(true);
+//        	c6.setObstacle(true);
+//        	c7.setObstacle(true);
+//        	c8.setObstacle(true);
         }
+        /**
         if(this.getZone().getID() % 4 == 1){
         	Coordinate c1 = this.getZone().getZoneCoord(-4.5, -0.5);
         	Coordinate c2 = this.getZone().getZoneCoord(-0.5, -2.5);
@@ -260,10 +274,24 @@ public class CameraRover extends Rover {
     		    		dest_z /= 100;
     					
     		    		boolean nextIsObstacle = nextDest.isObstacle();
-    		    		if(nextIsObstacle){    		    			
+    		    		if(nextIsObstacle){  
+    		    			if(grid_i == zoneGrid.length-1 && grid_j == zoneGrid.length-1){
+        						System.out.printf("%s has finished!\n", this.getName());
+        						this.setStatus("finished");	
+        						cs.updateFinishedRovers();
+        						running = false;
+        						return;
+        					}
     		    			traverseNextPoint();
     		    			Coordinate nextSkipObstacle = zoneGrid[grid_i][grid_j];
-    		    			// two obstacles in a row not supported..
+    		    			
+    		    			// rotate to the right direction
+        		    		moveFromTo(cur_x, cur_z, dest_x, dest_z, true);
+    		    			
+    		    			while(nextSkipObstacle.isObstacle()){
+    		    				traverseNextPoint();
+    		    				nextSkipObstacle = zoneGrid[grid_i][grid_j];
+    		    			}
     		    			
     		    			// round numbers
     		    			double new_x = nextSkipObstacle.getX() * 100;
@@ -286,8 +314,9 @@ public class CameraRover extends Rover {
         		    		else if(new_z < cur_z){ // the new destination is east of current
         		    			east = cur_z-new_z;
         		    		}
-        		    		// rotate to the right direction
-        		    		moveFromTo(cur_x, cur_z, dest_x, dest_z, true);
+        		    		
+        		    		//System.out.printf("(%d) next: (N:%.0f-O%.0f-Z%.0f-W%.0f)\n",this.getZone().getID(), north, east, south, west);
+        		    		
         		    		if(north > 0){
         		    			if(west == 0 && east == 0){
         		    				Coordinate toLeft = this.getZone().getZoneCoord(cur_x, cur_z+1);
@@ -335,19 +364,27 @@ public class CameraRover extends Rover {
     		    						avoidMoves[currentMove] = new Coordinate(cur_x, cur_z+1);
     		    						currentMove++;
     		    						// go north
-    		    						avoidMoves[currentMove] = new Coordinate(cur_x-1, cur_z+1);
+    		    						for(int i = 1; i <= (int)north; i++){
+        		    						avoidMoves[currentMove] = new Coordinate(cur_x-i, cur_z+1);
+            		    					currentMove++;
+        		    					}
+    		    						//avoidMoves[currentMove] = new Coordinate(cur_x-1, cur_z+1);
     		    						currentMove = 0;
-    	    							movesLeft = 1 + 1 + 1;
+    	    							movesLeft = 1 + (int)north + 1;
     	    							movescheck = this.getCounter() + 1;
         		    					break;
         		    				}
         		    				case WEST:{
         		    					currentMove = 0;
             		    				// go north
-    		    						avoidMoves[currentMove] = new Coordinate(cur_x-1, cur_z);
-    		    						currentMove++;
+        		    					for(int i = 1; i <= (int)north; i++){
+        		    						avoidMoves[currentMove] = new Coordinate(cur_x-i, cur_z);
+            		    					currentMove++;
+        		    					}
+    		    						//avoidMoves[currentMove] = new Coordinate(cur_x-1, cur_z);
+    		    						//currentMove++;
     		    						// go west
-    		    						avoidMoves[currentMove] = new Coordinate(cur_x-1, cur_z+1);
+    		    						avoidMoves[currentMove] = new Coordinate(cur_x-(int)north, cur_z+1);
     		    						currentMove = 0;
     	    							movesLeft = 1 + 1 + 1;
     	    							movescheck = this.getCounter() + 1;
@@ -363,21 +400,27 @@ public class CameraRover extends Rover {
     		    						avoidMoves[currentMove] = new Coordinate(cur_x, cur_z-1);
     		    						currentMove++;
     		    						// go north
-    		    						avoidMoves[currentMove] = new Coordinate(cur_x-1, cur_z-1);
+    		    						for(int i = 1; i <= (int)north; i++){
+        		    						avoidMoves[currentMove] = new Coordinate(cur_x-i, cur_z-1);
+            		    					currentMove++;
+        		    					}
+    		    						//avoidMoves[currentMove] = new Coordinate(cur_x-1, cur_z-1);
     		    						currentMove = 0;
-    	    							movesLeft = 1 + 1 + 1;
+    	    							movesLeft = 1 + (int)north + 1;
     	    							movescheck = this.getCounter() + 1;
         		    					break;
         		    				}
         		    				case EAST:{
-        		    					currentMove = 0;
+        		    					currentMove = 0;        		    					
+        		    					// go north
+    		    						for(int i = 1; i <= (int)north; i++){
+        		    						avoidMoves[currentMove] = new Coordinate(cur_x-i, cur_z);
+            		    					currentMove++;
+        		    					}
             		    				// go east
-    		    						avoidMoves[currentMove] = new Coordinate(cur_x-1, cur_z);
-    		    						currentMove++;
-    		    						// go north
-    		    						avoidMoves[currentMove] = new Coordinate(cur_x-1, cur_z-1);
+    		    						avoidMoves[currentMove] = new Coordinate(cur_x-(int)north, cur_z-1);    		    						
     		    						currentMove = 0;
-    	    							movesLeft = 1 + 1 + 1;
+    	    							movesLeft = 1 + (int)north + 1;
     	    							movescheck = this.getCounter() + 1;
         		    					break;
         		    				}
@@ -427,12 +470,16 @@ public class CameraRover extends Rover {
         		    				case WEST:{
         		    					currentMove = 0;
             		    				// go south
-    		    						avoidMoves[currentMove] = new Coordinate(cur_x+1, cur_z);
-    		    						currentMove++;
+        		    					for(int i = 1; i <= (int)south; i++){
+       		    							avoidMoves[currentMove] = new Coordinate(cur_x+i, cur_z);
+           		    						currentMove++;
+       		    						}
+    		    						//avoidMoves[currentMove] = new Coordinate(cur_x+1, cur_z);
+    		    						//currentMove++;
     		    						// go west
-    		    						avoidMoves[currentMove] = new Coordinate(cur_x+1, cur_z+1);
+    		    						avoidMoves[currentMove] = new Coordinate(cur_x+(int)south, cur_z+1);
     		    						currentMove = 0;
-    	    							movesLeft = 1 + 1 + 1;
+    	    							movesLeft = 1 + (int)south + 1;
     	    							movescheck = this.getCounter() + 1;
         		    					break;
         		    				}
@@ -442,9 +489,13 @@ public class CameraRover extends Rover {
     		    						avoidMoves[currentMove] = new Coordinate(cur_x, cur_z+1);
     		    						currentMove++;
     		    						// go south
-    		    						avoidMoves[currentMove] = new Coordinate(cur_x+1, cur_z+1);
+    		    						for(int i = 1; i <= (int)south; i++){
+       		    							avoidMoves[currentMove] = new Coordinate(cur_x+i, cur_z+1);
+           		    						currentMove++;
+       		    						}
+    		    						//avoidMoves[currentMove] = new Coordinate(cur_x+1, cur_z+1);
     		    						currentMove = 0;
-    	    							movesLeft = 1 + 1 + 1;
+    	    							movesLeft = 1 + (int)south + 1;
     	    							movescheck = this.getCounter() + 1;
         		    					break;
         		    				}
@@ -454,12 +505,16 @@ public class CameraRover extends Rover {
         		    				case EAST:{
         		    					currentMove = 0;
             		    				// go south
-    		    						avoidMoves[currentMove] = new Coordinate(cur_x+1, cur_z);
-    		    						currentMove++;
+        		    					for(int i = 1; i <= (int)south; i++){
+       		    							avoidMoves[currentMove] = new Coordinate(cur_x+i, cur_z);
+           		    						currentMove++;
+       		    						}
+    		    						//avoidMoves[currentMove] = new Coordinate(cur_x+1, cur_z);
+    		    						//currentMove++;
     		    						// go east
-    		    						avoidMoves[currentMove] = new Coordinate(cur_x+1, cur_z-1);
+    		    						avoidMoves[currentMove] = new Coordinate(cur_x+(int)south, cur_z-1);
     		    						currentMove = 0;
-    	    							movesLeft = 1 + 1 + 1;
+    	    							movesLeft = 1 + (int)south + 1;
     	    							movescheck = this.getCounter() + 1;
         		    					break;
         		    				}
@@ -469,13 +524,33 @@ public class CameraRover extends Rover {
     		    						avoidMoves[currentMove] = new Coordinate(cur_x, cur_z-1);
     		    						currentMove++;
     		    						// go south
-    		    						avoidMoves[currentMove] = new Coordinate(cur_x+1, cur_z-1);
+    		    						for(int i = 1; i <= (int)south; i++){
+       		    							avoidMoves[currentMove] = new Coordinate(cur_x+i, cur_z-1);
+           		    						currentMove++;
+       		    						}
+    		    						//avoidMoves[currentMove] = new Coordinate(cur_x+1, cur_z-1);
     		    						currentMove = 0;
-    	    							movesLeft = 1 + 1 + 1;
+    	    							movesLeft = 1 + (int)south + 1;
     	    							movescheck = this.getCounter() + 1;
         		    					break;
         		    				}
         		    				}
+        		    			}
+        		    		}
+        		    		else{ // only west/east (no north/south)
+        		    			if(west > 0){
+        		    				currentMove = 0;
+            		    			// go west
+    		    					avoidMoves[currentMove] = new Coordinate(cur_x, cur_z+1);
+    	    						movesLeft = 1 + 1;
+    	    						movescheck = this.getCounter() + 1;
+        		    			}
+        		    			else if(east > 0){
+        		    				currentMove = 0;
+            		    			// go west
+    		    					avoidMoves[currentMove] = new Coordinate(cur_x, cur_z-1);
+    	    						movesLeft = 1 + 1;
+    	    						movescheck = this.getCounter() + 1;
         		    			}
         		    		}
     		    			this.setStatus("avoid obstacle");
