@@ -54,7 +54,7 @@ public class CameraRover extends Rover {
 		// no GPS requirement
 		currentPosition = new Coordinate(position.x, 0.3, position.z);
 		lastCoord = new Coordinate(position.x, 0.3, position.z);
-		avoidMoves = new Coordinate[10];
+		avoidMoves = new Coordinate[30];
 	}
 
 	/** This method is called by the simulator engine on reset. */
@@ -161,7 +161,7 @@ public class CameraRover extends Rover {
     		}
     		}
     	}
-    	else if( this.getSubject().getState() == 2){
+    	else if( this.getSubject().getState() == 2 || this.getSubject().getState() == 3){
     		running = false;
     	}
     	
@@ -312,7 +312,7 @@ public class CameraRover extends Rover {
         		    		new_z /= 100;
         		    		
         		    		double north = 0, east = 0, south = 0, west = 0;
-        		    		if(new_x > cur_x){ // the new destination is south of current        		    			//System.out.printf("New destination is: %f to the south\n", new_x-cur_x);
+        		    		if(new_x > cur_x){ // the new destination is south of current
         		    			south = new_x-cur_x;
         		    		}
         		    		else if(new_x < cur_x){ // the new destination is north of current
@@ -638,23 +638,23 @@ public class CameraRover extends Rover {
     	}
     }
     
-    void traverseNextPoint(){
-    	if(traverseUp){
-    		grid_i++;
-    		if( grid_i == zoneGrid.length ){
-    			grid_i--;
-    			grid_j++;
-    			traverseUp=false;
-    		}
-    	}else{
-    		grid_i--;
-    		if(grid_i < 0){
-    			grid_i++;
-    			grid_j++;
-    			traverseUp=true;
-    		}
-    	}
-    }
+	void traverseNextPoint() {
+		if (traverseUp) {
+			grid_i++;
+			if (grid_i == zoneGrid.length) {
+				grid_i--;
+				grid_j++;
+				traverseUp = false;
+			}
+		} else {
+			grid_i--;
+			if (grid_i < 0) {
+				grid_i++;
+				grid_j++;
+				traverseUp = true;
+			}
+		}
+	}
     
 	@Override
 	public void update() {
