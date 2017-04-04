@@ -71,13 +71,13 @@ public class CameraRover extends Rover {
         currentMove = 0;
         
         // obstacle cheating :^)
-         
+        
         if(this.getZone().getID() % 4 == 0){
         	Coordinate c1 = this.getZone().getZoneCoord(-1.5, 1.5);
         	Coordinate c2 = this.getZone().getZoneCoord(-2.5, 1.5);
         	Coordinate c3 = this.getZone().getZoneCoord(-3.5, 1.5);
         	Coordinate c4 = this.getZone().getZoneCoord(-4.5, 1.5);
-//        	Coordinate c5 = this.getZone().getZoneCoord(-4.5, 1.5);
+//        	Coordinate c5 = this.getZone().getZoneCoord(-0.5, 1.5);
 //        	Coordinate c6 = this.getZone().getZoneCoord(-4.5, 2.5);
 //        	Coordinate c7 = this.getZone().getZoneCoord(-4.5, 3.5);
 //        	Coordinate c8 = this.getZone().getZoneCoord(-4.5, 4.5);
@@ -91,6 +91,7 @@ public class CameraRover extends Rover {
 //        	c7.setObstacle(true);
 //        	c8.setObstacle(true);
         }
+        
         /**
         if(this.getZone().getID() % 4 == 1){
         	Coordinate c1 = this.getZone().getZoneCoord(-4.5, -0.5);
@@ -185,6 +186,15 @@ public class CameraRover extends Rover {
     				currentPosition = new Coordinate(oldPos.getX(), oldPos.getY(), oldPos.getZ()+distance);
     				break;
 			}
+		}
+		
+		if(this.collisionDetected()){ // cannot happen unless an obstacle was not identified
+			CentralStation cs = (CentralStation)this.getSubject();
+			System.out.printf("%s has finished (prematurely)!\n", this.getName());
+			this.setStatus("finished");	
+			cs.updateFinishedRovers();
+			running = false;
+			return;
 		}
     	
 		if(this.getCounter() <= movescheck && movesLeft > 0){
@@ -313,6 +323,14 @@ public class CameraRover extends Rover {
         		    		}
         		    		else if(new_z < cur_z){ // the new destination is east of current
         		    			east = cur_z-new_z;
+        		    		}
+        		    		
+        		    		if( west > 1.5 || east > 1.5 ){ // cannot happen unless an area is blocked off
+        		    			System.out.printf("%s has finished (prematurely)!\n", this.getName());
+        						this.setStatus("finished");	
+        						cs.updateFinishedRovers();
+        						running = false;
+        						return;
         		    		}
         		    		
         		    		//System.out.printf("(%d) next: (N:%.0f-O%.0f-Z%.0f-W%.0f)\n",this.getZone().getID(), north, east, south, west);

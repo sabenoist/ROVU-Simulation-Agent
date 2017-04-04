@@ -55,18 +55,15 @@ public class CentralStation extends Subject {
 		/** add obstacles **/
 		// zone 0
 //		environment.addBox(-4.5, 0.5);
+		environment.addBox(-4.5, 1.5);
 		environment.addBox(-1.5, 1.5);
 		environment.addBox(-2.5, 1.5);
 		environment.addBox(-3.5, 1.5);
-		environment.addBox(-4.5, 1.5);
-		
-		//environment.addBox(-2.5, 0.5);
-		//environment.addBox(-3.5, 0.5);
-		//environment.addBox(-4.5, 0.5);
+		environment.addBox(-2.5, 3.5);
 		
 		// zone 1
-		environment.addBox(-4.5, -0.5);
-		environment.addBox(-0.5, -2.5);
+		//environment.addBox(-4.5, -0.5);
+		//environment.addBox(-0.5, -2.5);
 	}
 
 	public Vector3d[] getInitPositions() {
@@ -184,9 +181,16 @@ public class CentralStation extends Subject {
 					}
 				}
 			}
-			System.out.printf("Mission completed!\n");
+			System.out.printf("Mission finished!\n");
 			System.out.printf("Total grid points: %.0f, Covered grid points: %.0f, Obstacles: %d\n", total, progress, obstacles);
 			System.out.printf("%.0f%% of the area covered, %.0f%% considering obstacles\n", (progress/total)*100, ((progress+obstacles)/total)*100);
+			if(((progress+obstacles)/total*100) > 70){
+				System.out.printf("Mission successful!\n");
+			}else{
+				System.out.printf("Mission failed.\n");
+				this.setState(3);
+			}
+			
 			storeResults();
 		}
 	}

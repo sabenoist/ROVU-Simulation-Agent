@@ -82,6 +82,15 @@ public class ScoutingRover extends Rover {
     		return;
     	}
     	
+    	// if for some reason collision is detected (edge case)
+    	if(this.collisionDetected()){
+    		this.setStatus("turning");
+    		this.setTranslationalVelocity(0);
+    		rotateY(-(Math.PI)); 
+    		currentDirection = (currentDirection + 2) % 4;
+    		this.setStatus("forward");
+    	}
+    	
     	if (this.getCounter() > 0 && this.getTranslationalVelocity() > 0) {
 			Coordinate oldPos = currentPosition;
 			double distance = this.getTranslationalVelocity() / TICK_RATE;
@@ -188,7 +197,7 @@ public class ScoutingRover extends Rover {
             proxcheck = this.getCounter() + 10;
 		}
     	
-    	if(this.getCounter() % 5 == 0) {
+    	if(this.getCounter() % 5 == 0) {	
     		this.setStatus("forward");
     		this.setVelocity(0.5);
     		this.setTranslationalVelocity(this.getVelocity());  
