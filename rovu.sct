@@ -51,7 +51,7 @@
       <vertices xsi:type="sgraph:State" xmi:id="_q8Q8sBnhEeeGBeKF7LgWcg" specification="entry/ CentralStation.printSuccessful()" name="Mission Successful" incomingTransitions="_5cJtsBnhEeeGBeKF7LgWcg">
         <outgoingTransitions xmi:id="_sUX-gBo2Eee0Cst4m-SPiw" specification="always/ raise finish" target="_lnsrIBo2Eee0Cst4m-SPiw"/>
       </vertices>
-      <vertices xsi:type="sgraph:State" xmi:id="_umhA4BnhEeeGBeKF7LgWcg" specification="entry/ &#xD;&#xA;CentralStation.system_state = 3" name="Mission Failed" incomingTransitions="_8NEWIBnhEeeGBeKF7LgWcg">
+      <vertices xsi:type="sgraph:State" xmi:id="_umhA4BnhEeeGBeKF7LgWcg" specification="entry/ &#xD;&#xA;CentralStation.system_state = 3;&#xD;&#xA;CentralStation.printFailed()" name="Mission Failed" incomingTransitions="_8NEWIBnhEeeGBeKF7LgWcg">
         <outgoingTransitions xmi:id="_yFwuUBo2Eee0Cst4m-SPiw" specification="always/ raise finish" target="_lnsrIBo2Eee0Cst4m-SPiw"/>
       </vertices>
       <vertices xsi:type="sgraph:Choice" xmi:id="_wrvA8BnhEeeGBeKF7LgWcg" incomingTransitions="_z4uhYBnhEeeGBeKF7LgWcg">
@@ -429,7 +429,7 @@
           <styles xsi:type="notation:ShapeStyle" xmi:id="_umhn8xnhEeeGBeKF7LgWcg" fontName="Verdana" fillColor="15981773" lineColor="12632256"/>
           <styles xsi:type="notation:FontStyle" xmi:id="_umhn9BnhEeeGBeKF7LgWcg"/>
           <styles xsi:type="notation:BooleanValueStyle" xmi:id="_umiPAxnhEeeGBeKF7LgWcg" name="isHorizontal" booleanValue="true"/>
-          <layoutConstraint xsi:type="notation:Bounds" xmi:id="_umhn9RnhEeeGBeKF7LgWcg" x="10" y="1118" width="383" height="82"/>
+          <layoutConstraint xsi:type="notation:Bounds" xmi:id="_umhn9RnhEeeGBeKF7LgWcg" x="10" y="1118" width="383" height="104"/>
         </children>
         <children xsi:type="notation:Shape" xmi:id="_wrvoABnhEeeGBeKF7LgWcg" type="Choice" element="_wrvA8BnhEeeGBeKF7LgWcg" fontName="Verdana" lineColor="4210752">
           <layoutConstraint xsi:type="notation:Bounds" xmi:id="_wrvoARnhEeeGBeKF7LgWcg" x="430" y="999"/>
