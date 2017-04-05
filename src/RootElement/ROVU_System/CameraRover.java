@@ -69,37 +69,6 @@ public class CameraRover extends Rover {
         movesLeft = 0;
         movescheck = 0;
         currentMove = 0;
-        
-        // obstacle cheating :^)
-        
-        if(this.getZone().getID() % 4 == 0){
-        	Coordinate c1 = this.getZone().getZoneCoord(-1.5, 1.5);
-        	Coordinate c2 = this.getZone().getZoneCoord(-2.5, 1.5);
-        	Coordinate c3 = this.getZone().getZoneCoord(-3.5, 1.5);
-        	Coordinate c4 = this.getZone().getZoneCoord(-4.5, 1.5);
-//        	Coordinate c5 = this.getZone().getZoneCoord(-0.5, 1.5);
-//        	Coordinate c6 = this.getZone().getZoneCoord(-4.5, 2.5);
-//        	Coordinate c7 = this.getZone().getZoneCoord(-4.5, 3.5);
-//        	Coordinate c8 = this.getZone().getZoneCoord(-4.5, 4.5);
-        	
-        	c1.setObstacle(true);
-        	c2.setObstacle(true);
-        	c3.setObstacle(true);
-        	c4.setObstacle(true);
-//        	c5.setObstacle(true);
-//        	c6.setObstacle(true);
-//        	c7.setObstacle(true);
-//        	c8.setObstacle(true);
-        }
-        
-        /**
-        if(this.getZone().getID() % 4 == 1){
-        	Coordinate c1 = this.getZone().getZoneCoord(-4.5, -0.5);
-        	Coordinate c2 = this.getZone().getZoneCoord(-0.5, -2.5);
-        	c1.setObstacle(true);
-        	c2.setObstacle(true);
-        }
-        **/
     }
     
     /** This method is call cyclically (20 times per second) by the simulator engine. */

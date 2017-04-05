@@ -54,16 +54,7 @@ public class CentralStation extends Subject {
 		
 		/** add obstacles **/
 		// zone 0
-//		environment.addBox(-4.5, 0.5);
-		environment.addBox(-4.5, 1.5);
-		environment.addBox(-1.5, 1.5);
-		environment.addBox(-2.5, 1.5);
-		environment.addBox(-3.5, 1.5);
-		environment.addBox(-2.5, 3.5);
-		
-		// zone 1
-		//environment.addBox(-4.5, -0.5);
-		//environment.addBox(-0.5, -2.5);
+		//environment.addBox(-4.5, 0.5);		
 	}
 
 	public Vector3d[] getInitPositions() {

@@ -65,7 +65,7 @@ public class ScoutingRover extends Rover {
 		}
     	
     	// time limit for scouting
-    	if(this.getCounter() > 120){ // 2400
+    	if(this.getCounter() > 4800){ // 2400
     		CentralStation cs = (CentralStation)this.getSubject();
     		cs.finishScouting();
     		this.setTranslationalVelocity(0);
